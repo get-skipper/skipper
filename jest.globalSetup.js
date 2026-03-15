@@ -13,7 +13,9 @@ if (!spreadsheetId) {
 
 const { createSkipperGlobalSetup } = require('./packages/jest/dist/index');
 
-module.exports = createSkipperGlobalSetup({
-  spreadsheetId,
-  credentials: { credentialsFile: './service-account-skipper-bot.json' },
-});
+const credsB64 = process.env.GOOGLE_CREDS_B64;
+const credentials = credsB64
+  ? { credentialsBase64: credsB64 }
+  : { credentialsFile: './service-account-skipper-bot.json' };
+
+module.exports = createSkipperGlobalSetup({ spreadsheetId, credentials });
