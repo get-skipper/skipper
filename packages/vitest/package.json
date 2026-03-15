@@ -1,7 +1,7 @@
 {
   "name": "@get-skipper/vitest",
-  "version": "1.0.0",
-  "description": "Skipper plugin for Vitest \u2014 enable/disable tests from a Google Spreadsheet",
+  "version": "1.0.1",
+  "description": "Skipper plugin for Vitest — enable/disable tests from a Google Spreadsheet",
   "keywords": [
     "skipper",
     "vitest",
@@ -32,7 +32,7 @@
     "test": "jest --config ../../jest.config.js --testPathPattern=packages/vitest/"
   },
   "dependencies": {
-    "@get-skipper/core": "workspace:*"
+    "@get-skipper/core": "workspace:^1.0.1"
   },
   "peerDependencies": {
     "vitest": ">=1.0.0"

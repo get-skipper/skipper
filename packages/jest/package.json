@@ -1,7 +1,7 @@
 {
   "name": "@get-skipper/jest",
-  "version": "1.0.0",
-  "description": "Skipper plugin for Jest \u2014 enable/disable tests from a Google Spreadsheet",
+  "version": "1.0.1",
+  "description": "Skipper plugin for Jest — enable/disable tests from a Google Spreadsheet",
   "keywords": [
     "skipper",
     "jest",
@@ -32,7 +32,7 @@
     "test": "jest --config ../../jest.config.js --testPathPattern=packages/jest/"
   },
   "dependencies": {
-    "@get-skipper/core": "workspace:*"
+    "@get-skipper/core": "workspace:^1.0.1"
   },
   "peerDependencies": {
     "jest": ">=29.0.0"

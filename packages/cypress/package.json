@@ -1,7 +1,7 @@
 {
   "name": "@get-skipper/cypress",
-  "version": "1.0.0",
-  "description": "Skipper plugin for Cypress \u2014 enable/disable tests from a Google Spreadsheet",
+  "version": "1.0.1",
+  "description": "Skipper plugin for Cypress — enable/disable tests from a Google Spreadsheet",
   "keywords": [
     "skipper",
     "cypress",
@@ -37,7 +37,7 @@
     "test": "jest --config ../../jest.config.js --testPathPattern=packages/cypress/"
   },
   "dependencies": {
-    "@get-skipper/core": "workspace:*"
+    "@get-skipper/core": "workspace:^1.0.1"
   },
   "peerDependencies": {
     "cypress": ">=13.0.0"
