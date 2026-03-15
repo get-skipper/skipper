@@ -50,16 +50,6 @@ for (const dir of allDirs) {
 
   pkg.version = version;
 
-  // Update @get-skipper/* workspace deps to the new version
-  for (const depField of ['dependencies', 'devDependencies', 'peerDependencies']) {
-    if (!pkg[depField]) continue;
-    for (const dep of Object.keys(pkg[depField])) {
-      if (dep.startsWith('@get-skipper/')) {
-        pkg[depField][dep] = `workspace:^${version}`;
-      }
-    }
-  }
-
   fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + '\n', 'utf8');
   console.log(`  bumped ${pkg.name ?? dir} → ${version}`);
 }

@@ -37,7 +37,7 @@
     "test": "jest --config ../../jest.config.js --testPathPattern=packages/cypress/"
   },
   "dependencies": {
-    "@get-skipper/core": "workspace:^1.0.1"
+    "@get-skipper/core": "workspace:*"
   },
   "peerDependencies": {
     "cypress": ">=13.0.0"

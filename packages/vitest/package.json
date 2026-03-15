@@ -32,7 +32,7 @@
     "test": "jest --config ../../jest.config.js --testPathPattern=packages/vitest/"
   },
   "dependencies": {
-    "@get-skipper/core": "workspace:^1.0.1"
+    "@get-skipper/core": "workspace:*"
   },
   "peerDependencies": {
     "vitest": ">=1.0.0"

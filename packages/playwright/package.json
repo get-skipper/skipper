@@ -32,7 +32,7 @@
     "test": "jest --config ../../jest.config.js --testPathPattern=packages/playwright/"
   },
   "dependencies": {
-    "@get-skipper/core": "workspace:^1.0.1"
+    "@get-skipper/core": "workspace:*"
   },
   "peerDependencies": {
     "@playwright/test": ">=1.40.0"

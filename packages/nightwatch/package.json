@@ -32,7 +32,7 @@
     "test": "jest --config ../../jest.config.js --testPathPattern=packages/nightwatch/"
   },
   "dependencies": {
-    "@get-skipper/core": "workspace:^1.0.1"
+    "@get-skipper/core": "workspace:*"
   },
   "peerDependencies": {
     "nightwatch": ">=3.0.0"
