@@ -1,6 +1,6 @@
 {
   "name": "@skipper/vitest",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Skipper plugin for Vitest \u2014 enable/disable tests from a Google Spreadsheet",
   "keywords": [
     "skipper",

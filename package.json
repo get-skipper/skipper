@@ -12,7 +12,8 @@
     "test": "jest",
     "test:sync": "SKIPPER_MODE=sync jest",
     "test:packages": "pnpm -r run test",
-    "skipper:setup": "node scripts/setup-spreadsheet.js"
+    "skipper:setup": "node scripts/setup-spreadsheet.js",
+    "release": "node scripts/release.js"
   },
   "devDependencies": {
     "@types/jest": "^30.0.0",
