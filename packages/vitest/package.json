@@ -1,0 +1,43 @@
+{
+  "name": "@skipper/vitest",
+  "version": "0.1.0",
+  "description": "Skipper plugin for Vitest \u2014 enable/disable tests from a Google Spreadsheet",
+  "keywords": [
+    "skipper",
+    "vitest",
+    "testing",
+    "google-sheets",
+    "test-gating"
+  ],
+  "license": "MIT",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "jest --config ../../jest.config.js --testPathPattern=packages/vitest/"
+  },
+  "dependencies": {
+    "@skipper/core": "workspace:*"
+  },
+  "peerDependencies": {
+    "vitest": ">=1.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

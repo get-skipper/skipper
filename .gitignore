@@ -1,0 +1,21 @@
+node_modules/
+dist/
+*.tsbuildinfo
+
+# Credentials — never commit these
+.env
+.env.*
+service-account*.json
+*-service-account.json
+
+# Skipper runtime cache
+.skipper-cache.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp

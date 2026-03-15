@@ -1,0 +1,43 @@
+{
+  "name": "@skipper/nightwatch",
+  "version": "0.1.0",
+  "description": "Skipper plugin for Nightwatch.js \u2014 enable/disable tests from a Google Spreadsheet",
+  "keywords": [
+    "skipper",
+    "nightwatch",
+    "testing",
+    "google-sheets",
+    "test-gating"
+  ],
+  "license": "MIT",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "jest --config ../../jest.config.js --testPathPattern=packages/nightwatch/"
+  },
+  "dependencies": {
+    "@skipper/core": "workspace:*"
+  },
+  "peerDependencies": {
+    "nightwatch": ">=3.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

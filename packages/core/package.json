@@ -1,0 +1,40 @@
+{
+  "name": "@skipper/core",
+  "version": "0.1.0",
+  "description": "Core Google Sheets client and resolver for Skipper test-gating plugins",
+  "keywords": [
+    "skipper",
+    "testing",
+    "google-sheets",
+    "test-gating"
+  ],
+  "license": "MIT",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "jest --config ../../jest.config.js --testPathPattern=packages/core/"
+  },
+  "dependencies": {
+    "googleapis": "^140.0.0",
+    "google-auth-library": "^9.6.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

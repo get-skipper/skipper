@@ -1,0 +1,35 @@
+{
+  "name": "skipper",
+  "private": true,
+  "description": "Monorepo for Skipper test-gating plugins",
+  "scripts": {
+    "build": "pnpm -r run build",
+    "dev": "pnpm -r run dev",
+    "lint": "eslint 'packages/*/src/**/*.ts'",
+    "format": "prettier --write 'packages/*/src/**/*.ts'",
+    "format:check": "prettier --check 'packages/*/src/**/*.ts'",
+    "typecheck": "pnpm -r run typecheck",
+    "test": "jest",
+    "test:sync": "SKIPPER_MODE=sync jest",
+    "test:packages": "pnpm -r run test",
+    "skipper:setup": "node scripts/setup-spreadsheet.js"
+  },
+  "devDependencies": {
+    "@types/jest": "^30.0.0",
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "@typescript-eslint/parser": "^7.0.0",
+    "dotenv": "^17.3.1",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "google-auth-library": "^9.15.1",
+    "googleapis": "^140.0.1",
+    "jest": "^30.3.0",
+    "prettier": "^3.2.0",
+    "ts-jest": "^29.4.6",
+    "tsup": "^8.0.0",
+    "typescript": "^5.4.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "name": "@skipper/cypress",
+  "version": "0.1.0",
+  "description": "Skipper plugin for Cypress \u2014 enable/disable tests from a Google Spreadsheet",
+  "keywords": [
+    "skipper",
+    "cypress",
+    "testing",
+    "google-sheets",
+    "test-gating"
+  ],
+  "license": "MIT",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    },
+    "./support": {
+      "types": "./dist/support.d.ts",
+      "import": "./dist/support.mjs",
+      "require": "./dist/support.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "jest --config ../../jest.config.js --testPathPattern=packages/cypress/"
+  },
+  "dependencies": {
+    "@skipper/core": "workspace:*"
+  },
+  "peerDependencies": {
+    "cypress": ">=13.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
