@@ -1,6 +1,7 @@
 import { SheetsClient } from './client';
+import { ExcelClient } from './excel-client';
 import { normalizeTestId } from './cache';
-import type { SkipperConfig, SkipperMode } from './types';
+import type { SkipperConfig, GoogleSheetsConfig, SkipperMode } from './types';
 
 /**
  * SkipperResolver is the primary interface used by framework plugins.
@@ -12,7 +13,7 @@ import type { SkipperConfig, SkipperMode } from './types';
  * 4. In worker processes, use `SkipperResolver.fromJSON()` to rehydrate.
  */
 export class SkipperResolver {
-  private readonly client: SheetsClient;
+  private readonly client: SheetsClient | ExcelClient;
   private readonly config: SkipperConfig;
   /** normalized testId → disabledUntil ISO string (null = no date = enabled) */
   private cache: Map<string, string | null> = new Map();
@@ -20,11 +21,14 @@ export class SkipperResolver {
 
   constructor(config: SkipperConfig) {
     this.config = config;
-    this.client = new SheetsClient(config);
+    this.client =
+      config.source === 'excel'
+        ? new ExcelClient(config)
+        : new SheetsClient(config as GoogleSheetsConfig);
   }
 
   /**
-   * Fetches the spreadsheet and populates the in-memory cache.
+   * Fetches the spreadsheet / workbook and populates the in-memory cache.
    * Must be called once before `isTestEnabled()`.
    */
   async initialize(): Promise<void> {

@@ -1,6 +1,6 @@
 # Skipper
 
-Enable and disable tests directly from a Google Spreadsheet — no code changes required.
+Enable and disable tests directly from a spreadsheet — Google Sheets or Excel on Office 365 — no code changes required.
 
 Skipper integrates with your existing test suite via a minimal config. Each test is identified by its file path + title. Set a `disabledUntil` date in the spreadsheet to skip a test until that date; leave it empty (or set a past date) to run it normally.
 
@@ -21,7 +21,7 @@ Skipper integrates with your existing test suite via a minimal config. Each test
 
 ## Spreadsheet Schema
 
-Create a Google Spreadsheet with the following columns in the first row (header):
+Create a spreadsheet with the following columns in the first row (header):
 
 | `testId` | `disabledUntil` | `notes` |
 |---|---|---|
@@ -33,20 +33,25 @@ Create a Google Spreadsheet with the following columns in the first row (header)
 - **`disabledUntil`** — ISO 8601 date (e.g. `2026-04-01`). Empty or past date = test runs. Future date = test is skipped.
 - **`notes`** — optional free-text field, ignored by the plugin.
 
+The schema is identical whether you use Google Sheets or Excel on Office 365.
+
 ## Configuration Reference
 
-All Skipper plugins accept the same `SkipperConfig` object:
+All Skipper plugins accept the same `SkipperConfig` object. Choose between **Google Sheets** (default) and **Excel on Office 365** by setting the `source` field.
+
+### Google Sheets (default)
+
+`source` can be omitted — all existing configurations remain unchanged.
 
 | Option | Type | Required | Default | Description |
 |---|---|---|---|---|
+| `source` | `'google-sheets'` | | `'google-sheets'` | Backend selector (omit for backward compatibility) |
 | `spreadsheetId` | `string` | ✅ | — | The Google Spreadsheet ID (from the URL) |
 | `credentials` | object | ✅ | — | Service account credentials — see below |
 | `sheetName` | `string` | | first tab | Name of the sheet tab to read/write |
 | `referenceSheets` | `string[]` | | `[]` | Additional sheet tabs to read (read-only); merged with the primary sheet |
 | `testIdColumn` | `string` | | `"testId"` | Column header for the test identifier |
 | `disabledUntilColumn` | `string` | | `"disabledUntil"` | Column header for the disable date |
-
-### Credentials
 
 ```ts
 // Base64-encoded JSON (recommended for CI)
@@ -59,15 +64,50 @@ credentials: { credentialsFile: './service-account.json' }
 credentials: { client_email: '...', private_key: '...' }
 ```
 
+### Excel / Office 365
+
+Set `source: 'excel'` and provide Azure AD app credentials and the `workbookId`.
+
+| Option | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `source` | `'excel'` | ✅ | — | Backend selector |
+| `workbookId` | `string` | ✅ | — | OneDrive/SharePoint path: `"drives/{driveId}/items/{itemId}"` |
+| `credentials` | object | ✅ | — | Azure AD application credentials — see below |
+| `sheetName` | `string` | | first tab | Worksheet tab name to read/write |
+| `referenceSheets` | `string[]` | | `[]` | Additional worksheet tabs to read (read-only) |
+| `testIdColumn` | `string` | | `"testId"` | Column header for the test identifier |
+| `disabledUntilColumn` | `string` | | `"disabledUntil"` | Column header for the disable date |
+
+```ts
+// Base64-encoded JSON (recommended for CI)
+credentials: { credentialsBase64: process.env.AZURE_CREDS_B64! }
+// where the JSON is: { "tenantId": "...", "clientId": "...", "clientSecret": "..." }
+
+// Path to a local JSON file (recommended for local dev)
+credentials: { credentialsFile: './azure-creds.json' }
+
+// Inline object
+credentials: { tenantId: '...', clientId: '...', clientSecret: '...' }
+```
+
 ### `sheetName`
 
 By default Skipper uses the first tab of the spreadsheet. Use `sheetName` to target a specific tab:
 
 ```ts
+// Google Sheets
 {
   spreadsheetId: '...',
   credentials: { credentialsBase64: '...' },
-  sheetName: 'E2E Tests', // reads and writes to this tab only
+  sheetName: 'E2E Tests',
+}
+
+// Excel / Office 365
+{
+  source: 'excel',
+  workbookId: 'drives/...',
+  credentials: { credentialsBase64: '...' },
+  sheetName: 'E2E Tests',
 }
 ```
 
@@ -83,6 +123,8 @@ Additional sheet tabs to read (never written to). Useful for sharing a common li
   referenceSheets: ['Shared'],   // additional sheets (read-only)
 }
 ```
+
+---
 
 ## Google Sheets Setup
 
@@ -134,6 +176,70 @@ SKIPPER_MODE=sync SKIPPER_SPREADSHEET_ID=<your-spreadsheet-id> pnpm test
 
 All tests will be added to the spreadsheet with an empty `disabledUntil` (enabled by default). You can then set dates in the spreadsheet to disable specific tests.
 
+---
+
+## Excel / Office 365 Setup
+
+### 1. Register an Azure AD Application
+
+1. Go to [Azure Portal](https://portal.azure.com) → **Azure Active Directory → App registrations → New registration**
+2. Name: `skipper-bot` (or any name), account type: "Accounts in this organizational directory only"
+3. Click **Register** — note the **Application (client) ID** and **Directory (tenant) ID**
+
+### 2. Create a Client Secret
+
+1. In the app registration → **Certificates & secrets → New client secret**
+2. Add a description and expiry, then click **Add**
+3. Copy the **Value** immediately — it is only shown once
+
+### 3. Grant Microsoft Graph API Permissions
+
+1. **API permissions → Add a permission → Microsoft Graph → Application permissions**
+2. Add `Files.ReadWrite.All` (for OneDrive) or `Sites.ReadWrite.All` (for SharePoint)
+3. Click **Grant admin consent for {tenant}**
+
+### 4. Share the Workbook with the App
+
+Share the folder or drive containing your Excel file with the app registration's service principal via SharePoint/OneDrive admin, granting at least **Edit** access for `sync` mode (or **Read** for `read-only` mode).
+
+### 5. Find the `workbookId`
+
+Use [Graph Explorer](https://developer.microsoft.com/graph/graph-explorer) to find the file's drive and item IDs:
+
+```
+GET https://graph.microsoft.com/v1.0/drives/{driveId}/root/children
+```
+
+The `workbookId` is: `"drives/{driveId}/items/{itemId}"` (copy from the response).
+
+### 6. Prepare Credentials for CI
+
+Create a JSON file with the app credentials:
+
+```json
+{ "tenantId": "...", "clientId": "...", "clientSecret": "..." }
+```
+
+Encode it for CI:
+
+```bash
+base64 -i azure-creds.json | tr -d '\n'
+```
+
+Save as `AZURE_CREDS_B64` in your CI secrets. For local development, reference the file directly:
+
+```ts
+credentials: { credentialsFile: './azure-creds.json' }
+```
+
+### 7. Populate the Workbook for the First Time
+
+```bash
+SKIPPER_MODE=sync pnpm test
+```
+
+---
+
 ## Modes
 
 ### read-only (default)
@@ -155,6 +261,8 @@ After the run:
 - Removed tests → row deleted from the spreadsheet
 
 ## CI Example (GitHub Actions)
+
+### Google Sheets
 
 ```yaml
 # .github/workflows/test.yml
@@ -191,6 +299,25 @@ jobs:
           SKIPPER_MODE: sync
           SKIPPER_SPREADSHEET_ID: ${{ secrets.SKIPPER_SPREADSHEET_ID }}
           GOOGLE_CREDS_B64: ${{ secrets.GOOGLE_CREDS_B64 }}
+        run: pnpm test
+```
+
+### Excel / Office 365
+
+Replace `SKIPPER_SPREADSHEET_ID` / `GOOGLE_CREDS_B64` with the Azure equivalents and use `source: 'excel'` in your Skipper config:
+
+```yaml
+      - name: Test (read-only on PR)
+        if: github.event_name == 'pull_request'
+        env:
+          AZURE_CREDS_B64: ${{ secrets.AZURE_CREDS_B64 }}
+        run: pnpm test
+
+      - name: Test + sync (on merge to main)
+        if: github.ref == 'refs/heads/main'
+        env:
+          SKIPPER_MODE: sync
+          AZURE_CREDS_B64: ${{ secrets.AZURE_CREDS_B64 }}
         run: pnpm test
 ```
 

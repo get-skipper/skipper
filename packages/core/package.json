@@ -1,11 +1,13 @@
 {
   "name": "@get-skipper/core",
-  "version": "1.0.1",
-  "description": "Core Google Sheets client and resolver for Skipper test-gating plugins",
+  "version": "1.1.0",
+  "description": "Core client and resolver for Skipper test-gating plugins — supports Google Sheets and Excel on Office 365",
   "keywords": [
     "skipper",
     "testing",
     "google-sheets",
+    "excel",
+    "office365",
     "test-gating"
   ],
   "license": "MIT",
@@ -33,6 +35,9 @@
   "dependencies": {
     "googleapis": "^140.0.0",
     "google-auth-library": "^9.6.0"
+  },
+  "optionalDependencies": {
+    "@azure/identity": "^4.0.0"
   },
   "publishConfig": {
     "access": "public"

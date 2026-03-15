@@ -1,13 +1,14 @@
 import { SheetsClient } from './client';
+import { ExcelWriter } from './excel-writer';
 import { normalizeTestId } from './cache';
 import { log } from './logger';
-import type { SkipperConfig, TestEntry } from './types';
+import type { SkipperConfig, GoogleSheetsConfig, TestEntry } from './types';
 
 export class SheetsWriter {
   private readonly client: SheetsClient;
-  private readonly config: SkipperConfig;
+  private readonly config: GoogleSheetsConfig;
 
-  constructor(config: SkipperConfig) {
+  constructor(config: GoogleSheetsConfig) {
     this.config = config;
     this.client = new SheetsClient(config);
   }
@@ -99,4 +100,16 @@ export class SheetsWriter {
       log(`[skipper] Added ${toAdd.length} new test(s) to spreadsheet.`);
     }
   }
+}
+
+/**
+ * Returns the appropriate writer for the given config:
+ * - `SheetsWriter` for Google Sheets (default)
+ * - `ExcelWriter` for Excel on Office 365 (`source: 'excel'`)
+ */
+export function createWriter(config: SkipperConfig): SheetsWriter | ExcelWriter {
+  if (config.source === 'excel') {
+    return new ExcelWriter(config);
+  }
+  return new SheetsWriter(config as GoogleSheetsConfig);
 }

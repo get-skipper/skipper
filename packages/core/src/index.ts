@@ -1,12 +1,18 @@
 export { log, warn, error } from './logger';
 export { SheetsClient } from './client';
-export { SheetsWriter } from './writer';
+export { SheetsWriter, createWriter } from './writer';
+export { ExcelClient } from './excel-client';
+export { ExcelWriter } from './excel-writer';
 export { SkipperResolver } from './resolver';
 export { buildTestId, normalizeTestId } from './cache';
 export type {
   SkipperConfig,
+  GoogleSheetsConfig,
   SkipperCredentials,
-  SkipperMode,
   ServiceAccountCredentials,
+  ExcelConfig,
+  ExcelCredentials,
+  ExcelCredentialsInput,
+  SkipperMode,
   TestEntry,
 } from './types';
