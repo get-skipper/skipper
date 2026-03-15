@@ -1,13 +1,13 @@
-# @skipper/vitest
+# @get-skipper/vitest
 
 Skipper plugin for [Vitest](https://vitest.dev/) — enable/disable tests from a Google Spreadsheet.
 
 ## Installation
 
 ```bash
-pnpm add -D @skipper/vitest
+pnpm add -D @get-skipper/vitest
 # or
-npm install --save-dev @skipper/vitest
+npm install --save-dev @get-skipper/vitest
 ```
 
 ## Setup
@@ -16,7 +16,7 @@ Update `vitest.config.ts` — this is the **only change required**:
 
 ```ts
 import { defineConfig } from 'vitest/config';
-import { createSkipperGlobalSetup, createSkipperGlobalTeardown, setupFile } from '@skipper/vitest';
+import { createSkipperGlobalSetup, createSkipperGlobalTeardown, setupFile } from '@get-skipper/vitest';
 
 const skipperConfig = {
   spreadsheetId: process.env.SKIPPER_SPREADSHEET_ID!,

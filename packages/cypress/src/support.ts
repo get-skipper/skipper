@@ -3,7 +3,7 @@
  *
  * ```ts
  * // cypress/support/e2e.ts
- * import '@skipper/cypress/support';
+ * import '@get-skipper/cypress/support';
  * ```
  *
  * This file reads the cache written by the plugin and skips disabled tests
@@ -12,7 +12,7 @@
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
-import { SkipperResolver, buildTestId, warn } from '@skipper/core';
+import { SkipperResolver, buildTestId, warn } from '@get-skipper/core';
 
 const CACHE_PATH = path.join(os.tmpdir(), '.skipper-cypress-cache.json');
 

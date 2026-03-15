@@ -2,10 +2,10 @@ import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 import { createSkipperGlobalSetup, SKIPPER_CACHE_PATH } from '../src/globalSetup';
-import { SkipperResolver } from '@skipper/core';
+import { SkipperResolver } from '@get-skipper/core';
 
 jest.mock('fs');
-jest.mock('@skipper/core', () => {
+jest.mock('@get-skipper/core', () => {
   const SR = jest.fn();
   SR.prototype.initialize = jest.fn();
   SR.prototype.toJSON = jest.fn();
@@ -25,7 +25,7 @@ const config = {
   credentials: { credentialsBase64: 'dGVzdA==' },
 };
 
-describe('createSkipperGlobalSetup() — @skipper/playwright', () => {
+describe('createSkipperGlobalSetup() — @get-skipper/playwright', () => {
   beforeEach(() => {
     (MockedSkipperResolver.prototype.initialize as jest.Mock).mockResolvedValue(undefined);
     (MockedSkipperResolver.prototype.toJSON as jest.Mock).mockReturnValue(MOCK_CACHE);
@@ -69,7 +69,7 @@ describe('createSkipperGlobalSetup() — @skipper/playwright', () => {
     /**
      * In playwright.config.ts:
      *
-     *   import { createSkipperGlobalSetup, SkipperReporter } from '@skipper/playwright';
+     *   import { createSkipperGlobalSetup, SkipperReporter } from '@get-skipper/playwright';
      *
      *   const skipperConfig = {
      *     spreadsheetId: process.env.SKIPPER_SPREADSHEET_ID!,
@@ -82,7 +82,7 @@ describe('createSkipperGlobalSetup() — @skipper/playwright', () => {
      *   });
      *
      * In test files:
-     *   import { test, expect } from '@skipper/playwright';
+     *   import { test, expect } from '@get-skipper/playwright';
      *   // replaces: import { test, expect } from '@playwright/test'
      *
      * globalSetup() runs once before all workers:

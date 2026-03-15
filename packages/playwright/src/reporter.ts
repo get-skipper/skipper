@@ -1,6 +1,6 @@
 import type { Reporter, TestCase, TestResult, FullResult } from '@playwright/test/reporter';
-import { SheetsWriter, buildTestId, log } from '@skipper/core';
-import type { SkipperConfig } from '@skipper/core';
+import { SheetsWriter, buildTestId, log } from '@get-skipper/core';
+import type { SkipperConfig } from '@get-skipper/core';
 
 /**
  * SkipperReporter collects all test IDs discovered during the run.

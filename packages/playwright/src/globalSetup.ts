@@ -1,8 +1,8 @@
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
-import { SkipperResolver, log } from '@skipper/core';
-import type { SkipperConfig } from '@skipper/core';
+import { SkipperResolver, log } from '@get-skipper/core';
+import type { SkipperConfig } from '@get-skipper/core';
 
 export const SKIPPER_CACHE_PATH = path.join(os.tmpdir(), '.skipper-playwright-cache.json');
 

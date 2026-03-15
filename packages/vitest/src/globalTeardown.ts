@@ -1,5 +1,5 @@
-import { SheetsWriter, log, warn, error } from '@skipper/core';
-import type { SkipperConfig } from '@skipper/core';
+import { SheetsWriter, log, warn, error } from '@get-skipper/core';
+import type { SkipperConfig } from '@get-skipper/core';
 
 export function createSkipperGlobalTeardown(config: SkipperConfig) {
   return async function skipperGlobalTeardown(): Promise<void> {

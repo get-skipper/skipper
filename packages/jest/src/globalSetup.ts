@@ -1,8 +1,8 @@
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
-import { SkipperResolver, log } from '@skipper/core';
-import type { SkipperConfig } from '@skipper/core';
+import { SkipperResolver, log } from '@get-skipper/core';
+import type { SkipperConfig } from '@get-skipper/core';
 
 export function createSkipperGlobalSetup(config: SkipperConfig) {
   return async function skipperGlobalSetup(): Promise<void> {

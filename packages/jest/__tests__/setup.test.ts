@@ -9,7 +9,7 @@
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
-import { buildTestId } from '@skipper/core';
+import { buildTestId } from '@get-skipper/core';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -50,7 +50,7 @@ function loadSetup(): void {
 
 // ── Tests ─────────────────────────────────────────────────────────────────────
 
-describe('@skipper/jest setup.ts', () => {
+describe('@get-skipper/jest setup.ts', () => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const g = global as any;
   let mockTest: TestLike;

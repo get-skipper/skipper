@@ -1,13 +1,13 @@
-# @skipper/cypress
+# @get-skipper/cypress
 
 Skipper plugin for [Cypress](https://www.cypress.io/) — enable/disable tests from a Google Spreadsheet.
 
 ## Installation
 
 ```bash
-pnpm add -D @skipper/cypress
+pnpm add -D @get-skipper/cypress
 # or
-npm install --save-dev @skipper/cypress
+npm install --save-dev @get-skipper/cypress
 ```
 
 ## Setup
@@ -16,7 +16,7 @@ npm install --save-dev @skipper/cypress
 
 ```ts
 import { defineConfig } from 'cypress';
-import { createSkipperPlugin } from '@skipper/cypress';
+import { createSkipperPlugin } from '@get-skipper/cypress';
 
 const skipperConfig = {
   spreadsheetId: process.env.SKIPPER_SPREADSHEET_ID!,
@@ -38,13 +38,13 @@ export default defineConfig({
 **Option A** — import in your existing support file (`cypress/support/e2e.ts`):
 
 ```ts
-import '@skipper/cypress/support';
+import '@get-skipper/cypress/support';
 ```
 
 **Option B** — set as the support file in `cypress.config.ts`:
 
 ```ts
-import { supportFile } from '@skipper/cypress';
+import { supportFile } from '@get-skipper/cypress';
 export default defineConfig({
   e2e: {
     supportFile: supportFile,

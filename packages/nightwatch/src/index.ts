@@ -1,2 +1,2 @@
 export { createSkipperPlugin } from './globals';
-export type { SkipperConfig } from '@skipper/core';
+export type { SkipperConfig } from '@get-skipper/core';

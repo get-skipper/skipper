@@ -8,11 +8,11 @@ Skipper integrates with your existing test suite via a minimal config. Each test
 
 | Package | Framework |
 |---|---|
-| [`@skipper/playwright`](packages/playwright/README.md) | Playwright |
-| [`@skipper/jest`](packages/jest/README.md) | Jest |
-| [`@skipper/vitest`](packages/vitest/README.md) | Vitest |
-| [`@skipper/cypress`](packages/cypress/README.md) | Cypress |
-| [`@skipper/nightwatch`](packages/nightwatch/README.md) | Nightwatch.js |
+| [`@get-skipper/playwright`](packages/playwright/README.md) | Playwright |
+| [`@get-skipper/jest`](packages/jest/README.md) | Jest |
+| [`@get-skipper/vitest`](packages/vitest/README.md) | Vitest |
+| [`@get-skipper/cypress`](packages/cypress/README.md) | Cypress |
+| [`@get-skipper/nightwatch`](packages/nightwatch/README.md) | Nightwatch.js |
 
 ## How It Works
 

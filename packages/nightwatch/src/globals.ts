@@ -1,5 +1,5 @@
-import { SkipperResolver, SheetsWriter, buildTestId, log } from '@skipper/core';
-import type { SkipperConfig } from '@skipper/core';
+import { SkipperResolver, SheetsWriter, buildTestId, log } from '@get-skipper/core';
+import type { SkipperConfig } from '@get-skipper/core';
 
 /**
  * Creates a Nightwatch globals object that integrates Skipper.
@@ -10,7 +10,7 @@ import type { SkipperConfig } from '@skipper/core';
  *
  * Usage in nightwatch.conf.js:
  * ```js
- * const { createSkipperPlugin } = require('@skipper/nightwatch');
+ * const { createSkipperPlugin } = require('@get-skipper/nightwatch');
  * module.exports = {
  *   globals: createSkipperPlugin({ spreadsheetId: '...', credentials: { ... } }),
  * };

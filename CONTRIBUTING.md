@@ -81,5 +81,5 @@ pnpm format
 
 Each package lives in `packages/<name>/`. When adding a new package:
 1. Create the directory with `src/`, `package.json`, `tsconfig.json`, `tsup.config.ts`, `README.md`, `LICENSE`
-2. Add `"@skipper/<name>": "workspace:*"` to any dependent packages
+2. Add `"@get-skipper/<name>": "workspace:*"` to any dependent packages
 3. Ensure `publishConfig.access` is set to `"public"` in `package.json`

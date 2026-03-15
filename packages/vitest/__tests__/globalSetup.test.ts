@@ -1,8 +1,8 @@
 import * as fs from 'fs';
 import { createSkipperGlobalSetup, SKIPPER_CACHE_PATH } from '../src/globalSetup';
-import { SkipperResolver } from '@skipper/core';
+import { SkipperResolver } from '@get-skipper/core';
 
-jest.mock('@skipper/core', () => {
+jest.mock('@get-skipper/core', () => {
   const SR = jest.fn();
   SR.prototype.initialize = jest.fn();
   SR.prototype.toJSON = jest.fn();
@@ -21,7 +21,7 @@ const config = {
   credentials: { credentialsBase64: 'dGVzdA==' },
 };
 
-describe('createSkipperGlobalSetup() — @skipper/vitest', () => {
+describe('createSkipperGlobalSetup() — @get-skipper/vitest', () => {
   beforeEach(() => {
     if (fs.existsSync(SKIPPER_CACHE_PATH)) fs.unlinkSync(SKIPPER_CACHE_PATH);
     (MockedSkipperResolver.prototype.initialize as jest.Mock).mockResolvedValue(undefined);
@@ -54,11 +54,11 @@ describe('createSkipperGlobalSetup() — @skipper/vitest', () => {
     expect(parsed['tests/checkout.spec.ts > payment']).toBeDefined();
   });
 
-  describe('usage example — @skipper/vitest in vitest.config.ts', () => {
+  describe('usage example — @get-skipper/vitest in vitest.config.ts', () => {
     /**
      * vitest.config.ts:
      *
-     *   import { createSkipperGlobalSetup, createSkipperGlobalTeardown, setupFile } from '@skipper/vitest';
+     *   import { createSkipperGlobalSetup, createSkipperGlobalTeardown, setupFile } from '@get-skipper/vitest';
      *
      *   const skipperConfig = {
      *     spreadsheetId: process.env.SKIPPER_SPREADSHEET_ID!,
@@ -85,7 +85,7 @@ describe('createSkipperGlobalSetup() — @skipper/vitest', () => {
       const raw = fs.readFileSync(SKIPPER_CACHE_PATH, 'utf8');
       expect(() => JSON.parse(raw)).not.toThrow();
 
-      const { SkipperResolver: SR } = jest.requireActual('@skipper/core') as typeof import('@skipper/core');
+      const { SkipperResolver: SR } = jest.requireActual('@get-skipper/core') as typeof import('@get-skipper/core');
       const workerResolver = SR.fromJSON(JSON.parse(raw));
       expect(typeof workerResolver.isTestEnabled).toBe('function');
     });

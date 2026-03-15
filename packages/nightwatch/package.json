@@ -1,5 +1,5 @@
 {
-  "name": "@skipper/nightwatch",
+  "name": "@get-skipper/nightwatch",
   "version": "1.0.0",
   "description": "Skipper plugin for Nightwatch.js \u2014 enable/disable tests from a Google Spreadsheet",
   "keywords": [
@@ -32,7 +32,7 @@
     "test": "jest --config ../../jest.config.js --testPathPattern=packages/nightwatch/"
   },
   "dependencies": {
-    "@skipper/core": "workspace:*"
+    "@get-skipper/core": "workspace:*"
   },
   "peerDependencies": {
     "nightwatch": ">=3.0.0"

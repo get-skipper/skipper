@@ -1,8 +1,8 @@
 import * as fs from 'fs';
 import { createSkipperGlobalSetup } from '../src/globalSetup';
-import { SkipperResolver } from '@skipper/core';
+import { SkipperResolver } from '@get-skipper/core';
 
-jest.mock('@skipper/core', () => {
+jest.mock('@get-skipper/core', () => {
   const SR = jest.fn();
   SR.prototype.initialize = jest.fn();
   SR.prototype.toJSON = jest.fn();
@@ -90,11 +90,11 @@ describe('createSkipperGlobalSetup()', () => {
     if (dir2 && fs.existsSync(dir2)) fs.rmSync(dir2, { recursive: true, force: true });
   });
 
-  describe('usage example — @skipper/jest in jest.config.ts', () => {
+  describe('usage example — @get-skipper/jest in jest.config.ts', () => {
     /**
      * In your jest.config.ts:
      *
-     *   import { createSkipperGlobalSetup, createSkipperGlobalTeardown, setupFile } from '@skipper/jest';
+     *   import { createSkipperGlobalSetup, createSkipperGlobalTeardown, setupFile } from '@get-skipper/jest';
      *
      *   const skipperConfig = {
      *     spreadsheetId: process.env.SKIPPER_SPREADSHEET_ID!,

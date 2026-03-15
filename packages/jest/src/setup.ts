@@ -11,7 +11,7 @@
  */
 import * as fs from 'fs';
 import * as path from 'path';
-import { SkipperResolver, buildTestId } from '@skipper/core';
+import { SkipperResolver, buildTestId } from '@get-skipper/core';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const g = global as any;

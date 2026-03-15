@@ -7,7 +7,7 @@
  * 3. Collects all discovered test IDs into SKIPPER_DISCOVERED_TESTS for sync mode
  */
 import * as fs from 'fs';
-import { SkipperResolver, buildTestId } from '@skipper/core';
+import { SkipperResolver, buildTestId } from '@get-skipper/core';
 import { SKIPPER_CACHE_PATH } from './globalSetup';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -1,13 +1,13 @@
-# @skipper/jest
+# @get-skipper/jest
 
 Skipper plugin for [Jest](https://jestjs.io/) — enable/disable tests from a Google Spreadsheet.
 
 ## Installation
 
 ```bash
-pnpm add -D @skipper/jest
+pnpm add -D @get-skipper/jest
 # or
-npm install --save-dev @skipper/jest
+npm install --save-dev @get-skipper/jest
 ```
 
 ## Setup
@@ -15,7 +15,7 @@ npm install --save-dev @skipper/jest
 Update `jest.config.ts` — this is the **only change required**:
 
 ```ts
-import { createSkipperGlobalSetup, createSkipperGlobalTeardown, setupFile } from '@skipper/jest';
+import { createSkipperGlobalSetup, createSkipperGlobalTeardown, setupFile } from '@get-skipper/jest';
 
 const skipperConfig = {
   spreadsheetId: process.env.SKIPPER_SPREADSHEET_ID!,

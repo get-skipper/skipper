@@ -40,7 +40,7 @@ for (const dir of allDirs) {
     for (const depField of ['dependencies', 'devDependencies', 'peerDependencies']) {
       if (!pkg[depField]) continue;
       for (const [dep, val] of Object.entries(pkg[depField])) {
-        if (dep.startsWith('@skipper/') && val.startsWith('workspace:')) {
+        if (dep.startsWith('@get-skipper/') && val.startsWith('workspace:')) {
           // workspace refs stay as-is — pnpm resolves them during publish
         }
       }
@@ -50,11 +50,11 @@ for (const dir of allDirs) {
 
   pkg.version = version;
 
-  // Update @skipper/* workspace deps to the new version
+  // Update @get-skipper/* workspace deps to the new version
   for (const depField of ['dependencies', 'devDependencies', 'peerDependencies']) {
     if (!pkg[depField]) continue;
     for (const dep of Object.keys(pkg[depField])) {
-      if (dep.startsWith('@skipper/')) {
+      if (dep.startsWith('@get-skipper/')) {
         pkg[depField][dep] = `workspace:^${version}`;
       }
     }

@@ -4,7 +4,7 @@ const config = {
   testEnvironment: 'node',
   testMatch: ['<rootDir>/packages/**/__tests__/**/*.test.ts'],
   moduleNameMapper: {
-    '^@skipper/core$': '<rootDir>/packages/core/src/index.ts',
+    '^@get-skipper/core$': '<rootDir>/packages/core/src/index.ts',
   },
   transform: {
     '^.+\\.ts$': [

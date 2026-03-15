@@ -1,8 +1,8 @@
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
-import { SkipperResolver, SheetsWriter, buildTestId, log } from '@skipper/core';
-import type { SkipperConfig } from '@skipper/core';
+import { SkipperResolver, SheetsWriter, buildTestId, log } from '@get-skipper/core';
+import type { SkipperConfig } from '@get-skipper/core';
 
 export const SKIPPER_CACHE_PATH = path.join(os.tmpdir(), '.skipper-cypress-cache.json');
 
@@ -14,7 +14,7 @@ export const SKIPPER_CACHE_PATH = path.join(os.tmpdir(), '.skipper-cypress-cache
  *
  * Usage in cypress.config.ts:
  * ```ts
- * import { createSkipperPlugin } from '@skipper/cypress';
+ * import { createSkipperPlugin } from '@get-skipper/cypress';
  * export default defineConfig({
  *   e2e: { setupNodeEvents: createSkipperPlugin(skipperConfig) },
  * });

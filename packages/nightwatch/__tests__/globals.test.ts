@@ -1,7 +1,7 @@
 import { createSkipperPlugin } from '../src/globals';
-import { SkipperResolver, SheetsWriter } from '@skipper/core';
+import { SkipperResolver, SheetsWriter } from '@get-skipper/core';
 
-jest.mock('@skipper/core', () => {
+jest.mock('@get-skipper/core', () => {
   const SR = jest.fn();
   SR.prototype.initialize = jest.fn();
   SR.prototype.isTestEnabled = jest.fn();
@@ -10,7 +10,7 @@ jest.mock('@skipper/core', () => {
   return {
     SkipperResolver: SR,
     SheetsWriter: SW,
-    buildTestId: jest.requireActual('@skipper/core').buildTestId,
+    buildTestId: jest.requireActual('@get-skipper/core').buildTestId,
     log: jest.fn(), warn: jest.fn(), error: jest.fn(),
   };
 });
@@ -27,7 +27,7 @@ function makeBrowser(currentTest: object = {}): any {
   return { skip: jest.fn(), currentTest };
 }
 
-describe('createSkipperPlugin() — @skipper/nightwatch', () => {
+describe('createSkipperPlugin() — @get-skipper/nightwatch', () => {
   let originalMode: string | undefined;
 
   beforeEach(() => {
@@ -163,11 +163,11 @@ describe('createSkipperPlugin() — @skipper/nightwatch', () => {
     });
   });
 
-  describe('usage example — @skipper/nightwatch in nightwatch.conf.js', () => {
+  describe('usage example — @get-skipper/nightwatch in nightwatch.conf.js', () => {
     /**
      * nightwatch.conf.js:
      *
-     *   const { createSkipperPlugin } = require('@skipper/nightwatch');
+     *   const { createSkipperPlugin } = require('@get-skipper/nightwatch');
      *
      *   module.exports = {
      *     globals: createSkipperPlugin({

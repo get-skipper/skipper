@@ -1,13 +1,13 @@
-# @skipper/playwright
+# @get-skipper/playwright
 
 Skipper plugin for [Playwright](https://playwright.dev/) — enable/disable tests from a Google Spreadsheet.
 
 ## Installation
 
 ```bash
-pnpm add -D @skipper/playwright
+pnpm add -D @get-skipper/playwright
 # or
-npm install --save-dev @skipper/playwright
+npm install --save-dev @get-skipper/playwright
 ```
 
 ## Setup
@@ -16,7 +16,7 @@ npm install --save-dev @skipper/playwright
 
 ```ts
 import { defineConfig } from '@playwright/test';
-import { createSkipperGlobalSetup, SkipperReporter } from '@skipper/playwright';
+import { createSkipperGlobalSetup, SkipperReporter } from '@get-skipper/playwright';
 
 const skipperConfig = {
   spreadsheetId: process.env.SKIPPER_SPREADSHEET_ID!,
@@ -37,14 +37,14 @@ export default defineConfig({
 
 ### 2. Update test file imports
 
-Replace the `@playwright/test` import with `@skipper/playwright`:
+Replace the `@playwright/test` import with `@get-skipper/playwright`:
 
 ```ts
 // Before:
 import { test, expect } from '@playwright/test';
 
 // After:
-import { test, expect } from '@skipper/playwright';
+import { test, expect } from '@get-skipper/playwright';
 ```
 
 The API is identical — `test` and `expect` work exactly as before. Tests with a future `disabledUntil` date in the spreadsheet are automatically skipped.

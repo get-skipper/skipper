@@ -1,9 +1,9 @@
 import * as fs from 'fs';
 import { createSkipperPlugin } from '../src/plugin';
-import { SkipperResolver, SheetsWriter } from '@skipper/core';
+import { SkipperResolver, SheetsWriter } from '@get-skipper/core';
 
 jest.mock('fs');
-jest.mock('@skipper/core', () => {
+jest.mock('@get-skipper/core', () => {
   const SR = jest.fn();
   SR.prototype.initialize = jest.fn();
   SR.prototype.toJSON = jest.fn();
@@ -12,7 +12,7 @@ jest.mock('@skipper/core', () => {
   return {
     SkipperResolver: SR,
     SheetsWriter: SW,
-    buildTestId: jest.requireActual('@skipper/core').buildTestId,
+    buildTestId: jest.requireActual('@get-skipper/core').buildTestId,
     log: jest.fn(), warn: jest.fn(), error: jest.fn(),
   };
 });
@@ -37,7 +37,7 @@ function captureHandlers(plugin: ReturnType<typeof createSkipperPlugin>) {
   return { on, handlers };
 }
 
-describe('createSkipperPlugin() — @skipper/cypress', () => {
+describe('createSkipperPlugin() — @get-skipper/cypress', () => {
   let originalMode: string | undefined;
 
   beforeEach(() => {
@@ -144,12 +144,12 @@ describe('createSkipperPlugin() — @skipper/cypress', () => {
     });
   });
 
-  describe('usage example — @skipper/cypress in cypress.config.ts', () => {
+  describe('usage example — @get-skipper/cypress in cypress.config.ts', () => {
     /**
      * cypress.config.ts:
      *
      *   import { defineConfig } from 'cypress';
-     *   import { createSkipperPlugin } from '@skipper/cypress';
+     *   import { createSkipperPlugin } from '@get-skipper/cypress';
      *
      *   const skipperConfig = {
      *     spreadsheetId: process.env.SKIPPER_SPREADSHEET_ID!,
@@ -159,7 +159,7 @@ describe('createSkipperPlugin() — @skipper/cypress', () => {
      *   export default defineConfig({
      *     e2e: {
      *       setupNodeEvents: createSkipperPlugin(skipperConfig),
-     *       supportFile: require.resolve('@skipper/cypress/support'),
+     *       supportFile: require.resolve('@get-skipper/cypress/support'),
      *     },
      *   });
      *

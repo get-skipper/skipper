@@ -1,5 +1,5 @@
 {
-  "name": "@skipper/playwright",
+  "name": "@get-skipper/playwright",
   "version": "1.0.0",
   "description": "Skipper plugin for Playwright \u2014 enable/disable tests from a Google Spreadsheet",
   "keywords": [
@@ -32,7 +32,7 @@
     "test": "jest --config ../../jest.config.js --testPathPattern=packages/playwright/"
   },
   "dependencies": {
-    "@skipper/core": "workspace:*"
+    "@get-skipper/core": "workspace:*"
   },
   "peerDependencies": {
     "@playwright/test": ">=1.40.0"

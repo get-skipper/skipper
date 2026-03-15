@@ -1,12 +1,12 @@
 import { SkipperReporter } from '../src/reporter';
-import { SheetsWriter } from '@skipper/core';
+import { SheetsWriter } from '@get-skipper/core';
 
-jest.mock('@skipper/core', () => {
+jest.mock('@get-skipper/core', () => {
   const SW = jest.fn();
   SW.prototype.sync = jest.fn();
   return {
     SheetsWriter: SW,
-    buildTestId: jest.requireActual('@skipper/core').buildTestId,
+    buildTestId: jest.requireActual('@get-skipper/core').buildTestId,
     log: jest.fn(), warn: jest.fn(), error: jest.fn(),
   };
 });
@@ -98,7 +98,7 @@ describe('SkipperReporter', () => {
     });
   });
 
-  describe('usage example — @skipper/playwright end-to-end', () => {
+  describe('usage example — @get-skipper/playwright end-to-end', () => {
     /**
      * Full Playwright integration:
      *
@@ -107,7 +107,7 @@ describe('SkipperReporter', () => {
      *   reporter: [['list'], [SkipperReporter, skipperConfig]],
      *
      * test files:
-     *   import { test, expect } from '@skipper/playwright';
+     *   import { test, expect } from '@get-skipper/playwright';
      *   test('stripe payment', async ({ page }) => { ... }); // auto-skipped if disabled
      *
      * In sync mode (SKIPPER_MODE=sync), the reporter reconciles the spreadsheet

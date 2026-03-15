@@ -2,14 +2,14 @@ import * as path from 'path';
 
 export { createSkipperGlobalSetup } from './globalSetup';
 export { createSkipperGlobalTeardown } from './globalTeardown';
-export type { SkipperConfig } from '@skipper/core';
+export type { SkipperConfig } from '@get-skipper/core';
 
 /**
  * Absolute path to the setup file.
  * Add to `setupFiles` in vitest.config.ts:
  *
  * ```ts
- * import { setupFile } from '@skipper/vitest';
+ * import { setupFile } from '@get-skipper/vitest';
  * export default defineConfig({ test: { setupFiles: [setupFile] } });
  * ```
  */

@@ -1,13 +1,13 @@
-# @skipper/nightwatch
+# @get-skipper/nightwatch
 
 Skipper plugin for [Nightwatch.js](https://nightwatchjs.org/) — enable/disable tests from a Google Spreadsheet.
 
 ## Installation
 
 ```bash
-pnpm add -D @skipper/nightwatch
+pnpm add -D @get-skipper/nightwatch
 # or
-npm install --save-dev @skipper/nightwatch
+npm install --save-dev @get-skipper/nightwatch
 ```
 
 ## Setup
@@ -15,7 +15,7 @@ npm install --save-dev @skipper/nightwatch
 Update `nightwatch.conf.js` — this is the **only change required**:
 
 ```js
-const { createSkipperPlugin } = require('@skipper/nightwatch');
+const { createSkipperPlugin } = require('@get-skipper/nightwatch');
 
 module.exports = {
   globals: createSkipperPlugin({

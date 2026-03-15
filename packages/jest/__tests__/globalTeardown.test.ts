@@ -22,7 +22,7 @@ beforeEach(() => {
 
   mockSync = jest.fn().mockResolvedValue(undefined);
 
-  jest.mock('@skipper/core', () => ({
+  jest.mock('@get-skipper/core', () => ({
     SheetsWriter: jest.fn().mockImplementation(() => ({ sync: mockSync })),
     log: jest.fn(), warn: jest.fn(), error: jest.fn(),
   }));

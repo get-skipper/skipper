@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import { test as base } from '@playwright/test';
-import { SkipperResolver, buildTestId } from '@skipper/core';
+import { SkipperResolver, buildTestId } from '@get-skipper/core';
 import { SKIPPER_CACHE_PATH } from './globalSetup';
 
 type SkipperWorkerFixtures = {
@@ -18,7 +18,7 @@ type SkipperTestFixtures = {
  * by the globalSetup). Each test is checked via an auto-use fixture.
  *
  * Usage: replace `import { test } from '@playwright/test'`
- *        with    `import { test } from '@skipper/playwright'`
+ *        with    `import { test } from '@get-skipper/playwright'`
  */
 export const test = base.extend<SkipperTestFixtures, SkipperWorkerFixtures>({
   _skipperResolver: [
