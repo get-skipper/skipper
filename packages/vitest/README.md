@@ -43,6 +43,17 @@ No changes to test files are required. Tests with a future `disabledUntil` date 
 {relative file path} > {describe block(s)} > {test name}
 ```
 
+## Options
+
+| Option | Default | Description |
+|---|---|---|
+| `sheetName` | first tab | Sheet tab to read/write |
+| `referenceSheets` | `[]` | Additional tabs to read (read-only) |
+| `testIdColumn` | `"testId"` | Column header for the test ID |
+| `disabledUntilColumn` | `"disabledUntil"` | Column header for the disable date |
+
+See the [root README](../../README.md) for the full configuration reference.
+
 ## Modes
 
 - **`read-only`** (default): reads the spreadsheet, skips disabled tests. No writes.

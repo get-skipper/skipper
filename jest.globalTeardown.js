@@ -16,4 +16,4 @@ const credentials = credsB64
   ? { credentialsBase64: credsB64 }
   : { credentialsFile: './service-account-skipper-bot.json' };
 
-module.exports = createSkipperGlobalTeardown({ spreadsheetId, credentials });
+module.exports = createSkipperGlobalTeardown({ spreadsheetId, credentials, sheetName: 'skipper' });

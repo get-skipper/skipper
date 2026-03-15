@@ -33,6 +33,57 @@ Create a Google Spreadsheet with the following columns in the first row (header)
 - **`disabledUntil`** — ISO 8601 date (e.g. `2026-04-01`). Empty or past date = test runs. Future date = test is skipped.
 - **`notes`** — optional free-text field, ignored by the plugin.
 
+## Configuration Reference
+
+All Skipper plugins accept the same `SkipperConfig` object:
+
+| Option | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `spreadsheetId` | `string` | ✅ | — | The Google Spreadsheet ID (from the URL) |
+| `credentials` | object | ✅ | — | Service account credentials — see below |
+| `sheetName` | `string` | | first tab | Name of the sheet tab to read/write |
+| `referenceSheets` | `string[]` | | `[]` | Additional sheet tabs to read (read-only); merged with the primary sheet |
+| `testIdColumn` | `string` | | `"testId"` | Column header for the test identifier |
+| `disabledUntilColumn` | `string` | | `"disabledUntil"` | Column header for the disable date |
+
+### Credentials
+
+```ts
+// Base64-encoded JSON (recommended for CI)
+credentials: { credentialsBase64: process.env.GOOGLE_CREDS_B64! }
+
+// Path to a local JSON file (recommended for local dev)
+credentials: { credentialsFile: './service-account.json' }
+
+// Raw service account object
+credentials: { client_email: '...', private_key: '...' }
+```
+
+### `sheetName`
+
+By default Skipper uses the first tab of the spreadsheet. Use `sheetName` to target a specific tab:
+
+```ts
+{
+  spreadsheetId: '...',
+  credentials: { credentialsBase64: '...' },
+  sheetName: 'E2E Tests', // reads and writes to this tab only
+}
+```
+
+### `referenceSheets`
+
+Additional sheet tabs to read (never written to). Useful for sharing a common list of disabled tests across multiple suites. When the same `testId` appears in more than one sheet, the most restrictive (latest future) `disabledUntil` wins:
+
+```ts
+{
+  spreadsheetId: '...',
+  credentials: { credentialsBase64: '...' },
+  sheetName: 'E2E Tests',        // primary sheet (read + write in sync mode)
+  referenceSheets: ['Shared'],   // additional sheets (read-only)
+}
+```
+
 ## Google Sheets Setup
 
 ### 1. Create a Google Cloud Project and enable the API

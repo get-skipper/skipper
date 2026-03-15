@@ -66,6 +66,17 @@ Example:
 cypress/e2e/auth/login.cy.ts > login > should log in with valid credentials
 ```
 
+## Options
+
+| Option | Default | Description |
+|---|---|---|
+| `sheetName` | first tab | Sheet tab to read/write |
+| `referenceSheets` | `[]` | Additional tabs to read (read-only) |
+| `testIdColumn` | `"testId"` | Column header for the test ID |
+| `disabledUntilColumn` | `"disabledUntil"` | Column header for the disable date |
+
+See the [root README](../../README.md) for the full configuration reference.
+
 ## Modes
 
 - **`read-only`** (default): reads the spreadsheet, skips disabled tests. No writes.
