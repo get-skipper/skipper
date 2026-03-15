@@ -7,8 +7,11 @@ on:
 
 jobs:
   sync:
-    name: Test + Sync Spreadsheet
+    name: Test (read-only) + Sync Spreadsheet
     runs-on: ubuntu-latest
+    env:
+      SKIPPER_SPREADSHEET_ID: ${{ secrets.SKIPPER_SPREADSHEET_ID }}
+      GOOGLE_CREDS_B64: ${{ secrets.GOOGLE_CREDS_B64 }}
     steps:
       - uses: actions/checkout@v4
 
@@ -27,9 +30,16 @@ jobs:
       - name: Build
         run: pnpm build
 
-      - name: Test (sync mode)
+      - name: Test (read-only mode)
+        # Runs the full test suite with spreadsheet-based gating:
+        # tests marked as disabled in the spreadsheet are skipped,
+        # all others must pass. No writes to the spreadsheet.
+        run: pnpm test
+
+      - name: Sync spreadsheet (sync mode)
+        # Re-runs the suite and reconciles the spreadsheet:
+        # adds rows for newly discovered tests, removes stale ones.
+        # Runs after read-only so the gate is verified before any writes.
+        run: pnpm test
         env:
           SKIPPER_MODE: sync
-          SKIPPER_SPREADSHEET_ID: ${{ secrets.SKIPPER_SPREADSHEET_ID }}
-          GOOGLE_CREDS_B64: ${{ secrets.GOOGLE_CREDS_B64 }}
-        run: pnpm test
