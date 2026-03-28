@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-03-28
+
 ### Added
 
 - `SKIPPER_FAIL_OPEN` env var (default `true`): when the Sheets API is unreachable and no valid cache exists, Skipper enables all tests instead of crashing. Set to `false` to restore the previous crash behaviour.
@@ -35,6 +37,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `SKIPPER_DEBUG` env var for verbose logging.
 - CI workflow for automated publishing to npm.
 
-[Unreleased]: https://github.com/get-skipper/skipper/compare/v1.0.1...HEAD
+[Unreleased]: https://github.com/get-skipper/skipper/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/get-skipper/skipper/compare/v1.0.1...v1.1.0
 [1.0.1]: https://github.com/get-skipper/skipper/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/get-skipper/skipper/releases/tag/v1.0.0

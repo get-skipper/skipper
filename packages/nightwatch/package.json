@@ -1,6 +1,6 @@
 {
   "name": "@get-skipper/nightwatch",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "Skipper plugin for Nightwatch.js — enable/disable tests from a Google Spreadsheet",
   "keywords": [
     "skipper",
