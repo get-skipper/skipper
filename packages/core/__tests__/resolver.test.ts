@@ -6,6 +6,8 @@ import type { SkipperResolver as SkipperResolverType } from '../src/resolver';
 
 let SkipperResolver: typeof SkipperResolverType;
 let mockFetchAll: jest.Mock;
+let mockReadFileSync: jest.Mock;
+let mockWriteFileSync: jest.Mock;
 
 const FUTURE_ISO = new Date(Date.now() + 86_400_000).toISOString(); // tomorrow
 const PAST_ISO = new Date(Date.now() - 86_400_000).toISOString();   // yesterday
@@ -29,6 +31,8 @@ beforeEach(() => {
 
   // fetchAll() now returns { primary, entries } — resolver only uses entries
   mockFetchAll = jest.fn().mockResolvedValue({ primary: {}, entries: [] });
+  mockReadFileSync = jest.fn().mockImplementation(() => { throw new Error('ENOENT'); });
+  mockWriteFileSync = jest.fn();
 
   jest.mock('../src/client', () => ({
     SheetsClient: jest.fn().mockImplementation(() => ({
@@ -36,9 +40,20 @@ beforeEach(() => {
     })),
   }));
 
+  jest.mock('fs', () => ({
+    ...jest.requireActual('fs'),
+    readFileSync: mockReadFileSync,
+    writeFileSync: mockWriteFileSync,
+  }));
+
   // Load resolver AFTER mocks are registered so it picks up the mocked client
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   SkipperResolver = require('../src/resolver').SkipperResolver;
+});
+
+afterEach(() => {
+  delete process.env.SKIPPER_FAIL_OPEN;
+  delete process.env.SKIPPER_CACHE_TTL;
 });
 
 // ── Tests ─────────────────────────────────────────────────────────────────────
@@ -157,6 +172,81 @@ describe('SkipperResolver', () => {
       const resolver = new SkipperResolver(baseConfig);
       await resolver.initialize();
       expect(resolver.getMode()).toBe('read-only');
+    });
+  });
+
+  describe('SKIPPER_CACHE_TTL — disk cache', () => {
+    it('writes disk cache after a successful fetchAll()', async () => {
+      const resolver = new SkipperResolver(baseConfig);
+      await resolver.initialize();
+      expect(mockWriteFileSync).toHaveBeenCalledTimes(1);
+      const [, written] = mockWriteFileSync.mock.calls[0];
+      const data = JSON.parse(written);
+      expect(typeof data.timestamp).toBe('number');
+      expect(data.entries).toBeDefined();
+    });
+
+    it('uses disk cache when API fails and cache is within TTL', async () => {
+      process.env.SKIPPER_CACHE_TTL = '300';
+      mockFetchAll.mockRejectedValue(new Error('network error'));
+      const cacheData = {
+        timestamp: Date.now(),
+        entries: { 'tests/a.spec.ts > login': FUTURE_ISO },
+      };
+      mockReadFileSync.mockReturnValue(JSON.stringify(cacheData));
+
+      const resolver = new SkipperResolver(baseConfig);
+      await resolver.initialize();
+      expect(resolver.isTestEnabled('tests/a.spec.ts > login')).toBe(false);
+    });
+
+    it('ignores disk cache when it is expired (beyond TTL)', async () => {
+      process.env.SKIPPER_CACHE_TTL = '0';
+      mockFetchAll.mockRejectedValue(new Error('network error'));
+      const cacheData = {
+        timestamp: Date.now() - 10_000, // 10 seconds ago — beyond TTL=0
+        entries: { 'tests/a.spec.ts > login': FUTURE_ISO },
+      };
+      mockReadFileSync.mockReturnValue(JSON.stringify(cacheData));
+
+      // No valid cache → falls back to fail-open (default)
+      const resolver = new SkipperResolver(baseConfig);
+      await resolver.initialize();
+      // fail-open → all tests enabled
+      expect(resolver.isTestEnabled('tests/a.spec.ts > login')).toBe(true);
+    });
+  });
+
+  describe('SKIPPER_FAIL_OPEN', () => {
+    it('enables all tests when API fails and no cache is available (default: fail-open)', async () => {
+      mockFetchAll.mockRejectedValue(new Error('network error'));
+      // readFileSync throws (no cache file)
+
+      const resolver = new SkipperResolver(baseConfig);
+      await resolver.initialize();
+      expect(resolver.isTestEnabled('any test')).toBe(true);
+    });
+
+    it('re-throws when SKIPPER_FAIL_OPEN=false and no cache is available', async () => {
+      process.env.SKIPPER_FAIL_OPEN = 'false';
+      mockFetchAll.mockRejectedValue(new Error('network error'));
+
+      const resolver = new SkipperResolver(baseConfig);
+      await expect(resolver.initialize()).rejects.toThrow('network error');
+    });
+
+    it('still uses disk cache when SKIPPER_FAIL_OPEN=false and cache is valid', async () => {
+      process.env.SKIPPER_FAIL_OPEN = 'false';
+      mockFetchAll.mockRejectedValue(new Error('network error'));
+      const cacheData = {
+        timestamp: Date.now(),
+        entries: { 'tests/a.spec.ts > login': FUTURE_ISO },
+      };
+      mockReadFileSync.mockReturnValue(JSON.stringify(cacheData));
+
+      const resolver = new SkipperResolver(baseConfig);
+      await resolver.initialize();
+      expect(resolver.isTestEnabled('tests/a.spec.ts > login')).toBe(false);
     });
   });
 

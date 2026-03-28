@@ -1,6 +1,35 @@
+import * as fs from 'fs';
+import * as path from 'path';
 import { SheetsClient } from './client';
 import { normalizeTestId } from './cache';
+import { warn } from './logger';
 import type { SkipperConfig, SkipperMode } from './types';
+
+const DISK_CACHE_FILE = path.join(process.cwd(), '.skipper-cache.json');
+
+interface DiskCacheData {
+  timestamp: number;
+  entries: Record<string, string | null>;
+}
+
+function readDiskCache(ttlSeconds: number): Record<string, string | null> | null {
+  try {
+    const raw = fs.readFileSync(DISK_CACHE_FILE, 'utf8');
+    const data = JSON.parse(raw) as DiskCacheData;
+    if ((Date.now() - data.timestamp) / 1000 <= ttlSeconds) return data.entries;
+  } catch {
+    // file missing or invalid — no cache available
+  }
+  return null;
+}
+
+function writeDiskCache(entries: Record<string, string | null>): void {
+  try {
+    fs.writeFileSync(DISK_CACHE_FILE, JSON.stringify({ timestamp: Date.now(), entries }));
+  } catch {
+    // non-fatal — cache write failure is ignored
+  }
+}
 
 /**
  * SkipperResolver is the primary interface used by framework plugins.
@@ -17,6 +46,8 @@ export class SkipperResolver {
   /** normalized testId → disabledUntil ISO string (null = no date = enabled) */
   private cache: Map<string, string | null> = new Map();
   private initialized = false;
+  /** When true, all tests are enabled (fail-open fallback with no valid cache). */
+  private allEnabled = false;
 
   constructor(config: SkipperConfig) {
     this.config = config;
@@ -26,15 +57,42 @@ export class SkipperResolver {
   /**
    * Fetches the spreadsheet and populates the in-memory cache.
    * Must be called once before `isTestEnabled()`.
+   *
+   * On API failure:
+   * - If a valid `.skipper-cache.json` exists within SKIPPER_CACHE_TTL seconds, it is used.
+   * - Otherwise, if SKIPPER_FAIL_OPEN is not "false", all tests are enabled (fail-open).
+   * - Otherwise (SKIPPER_FAIL_OPEN=false), the original error is re-thrown.
    */
   async initialize(): Promise<void> {
-    const { entries } = await this.client.fetchAll();
-    this.cache = new Map(
-      entries.map((e) => [
-        normalizeTestId(e.testId),
-        e.disabledUntil ? e.disabledUntil.toISOString() : null,
-      ]),
-    );
+    const ttl = parseInt(process.env.SKIPPER_CACHE_TTL ?? '300', 10);
+    const failOpen = process.env.SKIPPER_FAIL_OPEN !== 'false';
+
+    let entries: Record<string, string | null>;
+    try {
+      const result = await this.client.fetchAll();
+      entries = Object.fromEntries(
+        result.entries.map((e) => [
+          normalizeTestId(e.testId),
+          e.disabledUntil ? e.disabledUntil.toISOString() : null,
+        ]),
+      );
+      writeDiskCache(entries);
+    } catch (err) {
+      const cached = readDiskCache(ttl);
+      if (cached !== null) {
+        warn('[skipper] API unreachable — using cached skip list (SKIPPER_CACHE_TTL).');
+        entries = cached;
+      } else if (failOpen) {
+        warn('[skipper] API unreachable and no valid cache — running all tests (SKIPPER_FAIL_OPEN=true).');
+        this.allEnabled = true;
+        this.initialized = true;
+        return;
+      } else {
+        throw err;
+      }
+    }
+
+    this.cache = new Map(Object.entries(entries));
     this.initialized = true;
   }
 
@@ -45,6 +103,7 @@ export class SkipperResolver {
    * - Not in spreadsheet → true (opt-out model: unknown tests run by default)
    * - disabledUntil is null or in the past → true
    * - disabledUntil is in the future → false
+   * - allEnabled (fail-open with no cache) → always true
    */
   isTestEnabled(testId: string): boolean {
     if (!this.initialized) {
@@ -53,6 +112,8 @@ export class SkipperResolver {
           'Did you forget to add the globalSetup to your config?',
       );
     }
+
+    if (this.allEnabled) return true;
 
     const normalized = normalizeTestId(testId);
     if (!this.cache.has(normalized)) return true;

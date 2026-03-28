@@ -17,7 +17,7 @@ Skipper integrates with your existing test suite via a minimal config. Each test
 ## How It Works
 
 - **`read-only` mode** (default): Skipper reads the spreadsheet at the start of the test run and skips any test whose `disabledUntil` date is in the future.
-- **`sync` mode** (`SKIPPER_MODE=sync`): Same as read-only, plus after the run Skipper reconciles the spreadsheet — adding rows for new tests and removing rows for tests no longer in the suite.
+- **`sync` mode** (`SKIPPER_MODE=sync`): Same as read-only, plus after the run Skipper reconciles the spreadsheet — adding rows for new tests and, when `SKIPPER_SYNC_ALLOW_DELETE=true`, removing rows for tests no longer in the suite.
 
 ## Spreadsheet Schema
 
@@ -134,6 +134,16 @@ SKIPPER_MODE=sync SKIPPER_SPREADSHEET_ID=<your-spreadsheet-id> pnpm test
 
 All tests will be added to the spreadsheet with an empty `disabledUntil` (enabled by default). You can then set dates in the spreadsheet to disable specific tests.
 
+## Environment Variables
+
+| Variable | Default | Description |
+|---|---|---|
+| `SKIPPER_MODE` | `read-only` | Set to `sync` to enable spreadsheet reconciliation after the test run |
+| `SKIPPER_FAIL_OPEN` | `true` | When `true`, runs all tests if the API is unreachable and no valid cache exists. Set to `false` to crash instead |
+| `SKIPPER_CACHE_TTL` | `300` | Seconds a local `.skipper-cache.json` is considered valid. Skipper writes this file after each successful fetch and reads it as a fallback on API failure |
+| `SKIPPER_SYNC_ALLOW_DELETE` | `false` | When `false`, orphaned rows (tests removed from the suite) are only warned about. Set to `true` to delete them |
+| `SKIPPER_DEBUG` | — | Set to any truthy value to enable verbose logging |
+
 ## Modes
 
 ### read-only (default)
@@ -152,7 +162,7 @@ SKIPPER_MODE=sync SKIPPER_SPREADSHEET_ID=<id> pnpm test
 
 After the run:
 - New tests → added to the spreadsheet with empty `disabledUntil`
-- Removed tests → row deleted from the spreadsheet
+- Removed tests → warned (set `SKIPPER_SYNC_ALLOW_DELETE=true` to also delete them)
 
 ## CI Example (GitHub Actions)
 

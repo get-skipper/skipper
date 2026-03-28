@@ -1,6 +1,6 @@
 import { SheetsClient } from './client';
 import { normalizeTestId } from './cache';
-import { log } from './logger';
+import { log, warn } from './logger';
 import type { SkipperConfig, TestEntry } from './types';
 
 export class SheetsWriter {
@@ -40,9 +40,18 @@ export class SheetsWriter {
     );
 
     const toAdd = discoveredIds.filter((id) => !normalizedExisting.has(normalizeTestId(id)));
-    const toRemoveNormalized = new Set(
+    const orphanedNormalized = new Set(
       [...normalizedExisting.keys()].filter((nid) => !normalizedDiscovered.has(nid)),
     );
+    const allowDelete = process.env.SKIPPER_SYNC_ALLOW_DELETE === 'true';
+    const toRemoveNormalized = allowDelete ? orphanedNormalized : new Set<string>();
+
+    if (orphanedNormalized.size > 0 && !allowDelete) {
+      warn(
+        `[skipper] ${orphanedNormalized.size} orphaned test(s) found in spreadsheet but not in suite — ` +
+          'set SKIPPER_SYNC_ALLOW_DELETE=true to remove them.',
+      );
+    }
 
     if (toAdd.length === 0 && toRemoveNormalized.size === 0) {
       log('[skipper] Spreadsheet is already up to date.');

@@ -53,6 +53,10 @@ function makeFetchAllResult(
   };
 }
 
+afterEach(() => {
+  delete process.env.SKIPPER_SYNC_ALLOW_DELETE;
+});
+
 beforeEach(() => {
   jest.resetModules();
 
@@ -105,6 +109,7 @@ describe('SheetsWriter.sync()', () => {
   });
 
   it('deletes rows for tests no longer in the suite', async () => {
+    process.env.SKIPPER_SYNC_ALLOW_DELETE = 'true';
     const obsoleteId = 'tests/removed.spec.ts > old test';
     const sheetsApi = makeSheetsApi();
     mockFetchAll.mockResolvedValue(makeFetchAllResult({
@@ -122,6 +127,7 @@ describe('SheetsWriter.sync()', () => {
   });
 
   it('appends new tests AND deletes obsolete ones in the same sync', async () => {
+    process.env.SKIPPER_SYNC_ALLOW_DELETE = 'true';
     const obsoleteId = 'tests/old.spec.ts > old test';
     const newId = 'tests/new.spec.ts > new test';
     const sheetsApi = makeSheetsApi();
@@ -138,6 +144,7 @@ describe('SheetsWriter.sync()', () => {
   });
 
   it('sorts delete requests in descending row order to avoid index shifting', async () => {
+    process.env.SKIPPER_SYNC_ALLOW_DELETE = 'true';
     const idA = 'tests/a.spec.ts > test a';
     const idB = 'tests/b.spec.ts > test b';
     const sheetsApi = makeSheetsApi();
@@ -175,6 +182,55 @@ describe('SheetsWriter.sync()', () => {
     expect(mockFetchAll).toHaveBeenCalledTimes(1);
   });
 
+  describe('SKIPPER_SYNC_ALLOW_DELETE', () => {
+    it('does NOT delete orphaned rows when SKIPPER_SYNC_ALLOW_DELETE is unset (default: false)', async () => {
+      const obsoleteId = 'tests/removed.spec.ts > old test';
+      const sheetsApi = makeSheetsApi();
+      mockFetchAll.mockResolvedValue(makeFetchAllResult({
+        rows: [['testId', 'disabledUntil'], [obsoleteId, '']],
+        entries: [{ testId: obsoleteId, disabledUntil: null }],
+      }, sheetsApi));
+
+      const writer = new SheetsWriter(baseConfig);
+      await writer.sync([]); // orphan exists but allow-delete is off
+
+      expect(sheetsApi.mocks.mockBatchUpdate).not.toHaveBeenCalled();
+    });
+
+    it('deletes orphaned rows when SKIPPER_SYNC_ALLOW_DELETE=true', async () => {
+      process.env.SKIPPER_SYNC_ALLOW_DELETE = 'true';
+      const obsoleteId = 'tests/removed.spec.ts > old test';
+      const sheetsApi = makeSheetsApi();
+      mockFetchAll.mockResolvedValue(makeFetchAllResult({
+        rows: [['testId', 'disabledUntil'], [obsoleteId, '']],
+        entries: [{ testId: obsoleteId, disabledUntil: null }],
+      }, sheetsApi));
+
+      const writer = new SheetsWriter(baseConfig);
+      await writer.sync([]);
+
+      expect(sheetsApi.mocks.mockBatchUpdate).toHaveBeenCalledTimes(1);
+      const req = sheetsApi.mocks.mockBatchUpdate.mock.calls[0][0];
+      expect(req.requestBody.requests[0].deleteDimension).toBeDefined();
+    });
+
+    it('still appends new tests even when allow-delete is off', async () => {
+      const obsoleteId = 'tests/old.spec.ts > old test';
+      const newId = 'tests/new.spec.ts > new test';
+      const sheetsApi = makeSheetsApi();
+      mockFetchAll.mockResolvedValue(makeFetchAllResult({
+        rows: [['testId', 'disabledUntil'], [obsoleteId, '']],
+        entries: [{ testId: obsoleteId, disabledUntil: null }],
+      }, sheetsApi));
+
+      const writer = new SheetsWriter(baseConfig);
+      await writer.sync([newId]); // no allow-delete → no deletion, but append should happen
+
+      expect(sheetsApi.mocks.mockBatchUpdate).not.toHaveBeenCalled();
+      expect(sheetsApi.mocks.mockAppend).toHaveBeenCalledTimes(1);
+    });
+  });
+
   describe('usage example — sync mode reconciliation', () => {
     /**
      * Simulates what happens when SKIPPER_MODE=sync and a test run completes.
@@ -183,6 +239,7 @@ describe('SheetsWriter.sync()', () => {
      * spreadsheet: new tests are appended, removed tests are deleted.
      */
     it('adds newly discovered tests and removes stale ones', async () => {
+      process.env.SKIPPER_SYNC_ALLOW_DELETE = 'true';
       const stillExists = 'tests/auth.spec.ts > login > should log in';
       const wasRemoved = 'tests/old-feature.spec.ts > old > test';
       const isNew = 'tests/new-feature.spec.ts > feature > works';

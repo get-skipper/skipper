@@ -77,6 +77,23 @@ pnpm lint
 pnpm format
 ```
 
+## Changelog
+
+This project maintains a [CHANGELOG.md](CHANGELOG.md) that follows the [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format.
+
+**Every pull request that affects behaviour must include a changelog entry** under the `## [Unreleased]` section at the top of `CHANGELOG.md`. Use the appropriate subsection:
+
+| Subsection | When to use |
+|---|---|
+| `Added` | New features or env vars |
+| `Changed` | Changes to existing behaviour |
+| `Deprecated` | Features that will be removed in a future release |
+| `Removed` | Features that have been removed |
+| `Fixed` | Bug fixes |
+| `Security` | Security-related fixes |
+
+On release, a maintainer renames `[Unreleased]` to `[x.y.z] - YYYY-MM-DD`, adds a fresh `[Unreleased]` section at the top, and updates the comparison links at the bottom of the file.
+
 ## Package Structure
 
 Each package lives in `packages/<name>/`. When adding a new package:
