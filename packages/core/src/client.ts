@@ -94,14 +94,16 @@ export class SheetsClient {
       if (disabledUntilIdx !== -1 && row[disabledUntilIdx]) {
         const raw = String(row[disabledUntilIdx]).trim();
         if (raw) {
-          const parsed = new Date(raw);
-          if (!isNaN(parsed.getTime())) {
-            disabledUntil = parsed;
-          } else {
-            warn(
-              `[skipper] Row ${i + 1} in "${sheetName}": invalid date "${raw}" in "${disabledUntilCol}" — treating as enabled`,
+          if (!/^\d{4}-\d{2}-\d{2}$/.test(raw)) {
+            throw new Error(
+              `[skipper] Row ${i + 1} in "${sheetName}": date "${raw}" in "${disabledUntilCol}" must be in YYYY-MM-DD format (e.g. "2026-04-01")`,
             );
           }
+          const [year, month, day] = raw.split('-').map(Number);
+          // Parse as midnight UTC of the next day: "disabled until 2026-04-01" keeps
+          // the test disabled through the entire calendar day in UTC and re-enables
+          // at 2026-04-02T00:00:00Z, regardless of the runner's local timezone.
+          disabledUntil = new Date(Date.UTC(year, month - 1, day + 1));
         }
       }
 

@@ -96,7 +96,8 @@ describe('SheetsClient.fetchAll()', () => {
     expect(entries).toHaveLength(2);
 
     expect(entries[0].testId).toBe('tests/a.spec.ts > login');
-    expect(entries[0].disabledUntil).toEqual(new Date('2099-12-31'));
+    // "2099-12-31" is stored as next-day midnight UTC = 2100-01-01T00:00:00Z
+    expect(entries[0].disabledUntil).toEqual(new Date(Date.UTC(2099, 11, 32)));
     expect(entries[0].notes).toBe('flaky');
 
     expect(entries[1].testId).toBe('tests/b.spec.ts > checkout');
@@ -115,7 +116,7 @@ describe('SheetsClient.fetchAll()', () => {
     expect(entry.disabledUntil).toBeNull();
   });
 
-  it('returns disabledUntil: null and warns for an invalid date string', async () => {
+  it('throws for a date string that is not in YYYY-MM-DD format', async () => {
     mockValuesGet.mockResolvedValue(
       makeRows([
         ['testId', 'disabledUntil'],
@@ -123,8 +124,31 @@ describe('SheetsClient.fetchAll()', () => {
       ]),
     );
     const client = new SheetsClientCtor(inlineConfig);
+    await expect(client.fetchAll()).rejects.toThrow('must be in YYYY-MM-DD format');
+  });
+
+  it('throws for a non-padded date like "2026-4-1" (Safari-incompatible format)', async () => {
+    mockValuesGet.mockResolvedValue(
+      makeRows([
+        ['testId', 'disabledUntil'],
+        ['tests/a.spec.ts > test', '2026-4-1'],
+      ]),
+    );
+    const client = new SheetsClientCtor(inlineConfig);
+    await expect(client.fetchAll()).rejects.toThrow('must be in YYYY-MM-DD format');
+  });
+
+  it('parses a valid YYYY-MM-DD date as next-day midnight UTC for consistent timezone handling', async () => {
+    mockValuesGet.mockResolvedValue(
+      makeRows([
+        ['testId', 'disabledUntil'],
+        ['tests/a.spec.ts > test', '2026-04-01'],
+      ]),
+    );
+    const client = new SheetsClientCtor(inlineConfig);
     const { entries: [entry] } = await client.fetchAll();
-    expect(entry.disabledUntil).toBeNull();
+    // "disabled until 2026-04-01" → re-enables at 2026-04-02T00:00:00Z
+    expect(entry.disabledUntil).toEqual(new Date('2026-04-02T00:00:00.000Z'));
   });
 
   it('throws when the testId column is missing from the header', async () => {
@@ -152,7 +176,8 @@ describe('SheetsClient.fetchAll()', () => {
     });
     const { entries: [entry] } = await client.fetchAll();
     expect(entry.testId).toBe('tests/a.spec.ts > test');
-    expect(entry.disabledUntil).toEqual(new Date('2099-01-01'));
+    // "2099-01-01" → next-day midnight UTC = 2099-01-02T00:00:00Z
+    expect(entry.disabledUntil).toEqual(new Date(Date.UTC(2099, 0, 2)));
   });
 
   it('skips rows with an empty testId cell', async () => {
@@ -258,7 +283,8 @@ describe('SheetsClient.fetchAll()', () => {
       const { entries } = await client.fetchAll();
 
       expect(entries).toHaveLength(1);
-      expect(entries[0].disabledUntil).toEqual(new Date(laterDate));
+      // laterDate "2099-06-01" → 2099-06-02T00:00:00Z (next-day midnight UTC)
+      expect(entries[0].disabledUntil).toEqual(new Date(Date.UTC(2099, 5, 2)));
     });
 
     it('warns and skips reference sheets not found in metadata', async () => {
