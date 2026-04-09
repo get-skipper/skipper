@@ -1,6 +1,6 @@
 {
   "name": "@get-skipper/jest",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Skipper plugin for Jest — enable/disable tests from a Google Spreadsheet",
   "keywords": [
     "skipper",

@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-04-09
+
+### Fixed
+
+- **core**: strict `YYYY-MM-DD` date parsing — non-padded formats (e.g. `2026-4-1`) now throw a descriptive error with the row number instead of silently producing an invalid date.
+- **core**: dates are now interpreted as midnight UTC of the *next* day, so `disabledUntil: 2026-04-01` keeps the test disabled through the entire calendar day in UTC and re-enables at `2026-04-02T00:00:00Z`, regardless of the runner's local timezone.
+- **ci**: add `@types/node` to Cypress devDependencies and build `core` before typechecking to fix CI typecheck failures.
+- **lint**: allow underscore-prefixed unused arguments and fix empty object pattern lint errors.
+
 ## [1.1.0] - 2026-03-28
 
 ### Added
@@ -37,7 +46,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `SKIPPER_DEBUG` env var for verbose logging.
 - CI workflow for automated publishing to npm.
 
-[Unreleased]: https://github.com/get-skipper/skipper/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/get-skipper/skipper/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/get-skipper/skipper/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/get-skipper/skipper/compare/v1.0.1...v1.1.0
 [1.0.1]: https://github.com/get-skipper/skipper/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/get-skipper/skipper/releases/tag/v1.0.0
