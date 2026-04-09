@@ -22,7 +22,7 @@ type SkipperTestFixtures = {
  */
 export const test = base.extend<SkipperTestFixtures, SkipperWorkerFixtures>({
   _skipperResolver: [
-    async ({}, use) => {
+    async (_: Record<never, never>, use) => {
       const raw = fs.readFileSync(SKIPPER_CACHE_PATH, 'utf8');
       const data = JSON.parse(raw) as Record<string, string | null>;
       const resolver = SkipperResolver.fromJSON(data);
