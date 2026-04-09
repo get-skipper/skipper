@@ -25,6 +25,9 @@ jobs:
       - name: Lint
         run: pnpm lint
 
+      - name: Build core
+        run: pnpm --filter @get-skipper/core build
+
       - name: Typecheck
         run: pnpm typecheck
 
