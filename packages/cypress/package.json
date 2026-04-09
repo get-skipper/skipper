@@ -36,6 +36,9 @@
     "typecheck": "tsc --noEmit",
     "test": "jest --config ../../jest.config.js --testPathPattern=packages/cypress/"
   },
+  "devDependencies": {
+    "@types/node": "*"
+  },
   "dependencies": {
     "@get-skipper/core": "workspace:*"
   },
