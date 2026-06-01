@@ -93,7 +93,9 @@ export class SheetsWriter {
       const headerIdxDisabledUntil = header.indexOf(disabledUntilCol);
 
       const newRows = toAdd.map((testId) => {
-        const row: string[] = new Array(Math.max(testIdIdx + 1, headerIdxDisabledUntil + 1)).fill('');
+        const row: string[] = new Array(Math.max(testIdIdx + 1, headerIdxDisabledUntil + 1)).fill(
+          '',
+        );
         row[testIdIdx] = testId;
         if (headerIdxDisabledUntil !== -1) row[headerIdxDisabledUntil] = '';
         return row;

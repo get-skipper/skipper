@@ -11,6 +11,8 @@ type CreateTeardown = (config: unknown) => TeardownFn;
 
 let createSkipperGlobalTeardown: CreateTeardown;
 let mockSync: jest.Mock;
+let mockEmitSummary: jest.Mock;
+let mockBuildReport: jest.Mock;
 
 const config = {
   spreadsheetId: 'sheet-id',
@@ -21,9 +23,19 @@ beforeEach(() => {
   jest.resetModules();
 
   mockSync = jest.fn().mockResolvedValue(undefined);
+  mockEmitSummary = jest.fn();
+  mockBuildReport = jest.fn().mockReturnValue({
+    suppressedCount: 0,
+    expiringThisWeek: [],
+    reEnabledThisRun: [],
+    quarantineDebtDays: 0,
+    generatedAt: new Date().toISOString(),
+  });
 
   jest.mock('@get-skipper/core', () => ({
     SheetsWriter: jest.fn().mockImplementation(() => ({ sync: mockSync })),
+    buildReport: mockBuildReport,
+    emitSummary: mockEmitSummary,
     log: jest.fn(), warn: jest.fn(), error: jest.fn(),
   }));
 
@@ -42,17 +54,26 @@ function writeIds(dir: string, ids: string[]): void {
   fs.writeFileSync(path.join(dir, 'worker-1.json'), JSON.stringify(ids));
 }
 
+function writeCacheFile(dir: string, data: Record<string, string | null>): string {
+  const cacheFile = path.join(dir, 'cache.json');
+  fs.writeFileSync(cacheFile, JSON.stringify(data), 'utf8');
+  return cacheFile;
+}
+
 // ── Tests ─────────────────────────────────────────────────────────────────────
 
 describe('createSkipperGlobalTeardown()', () => {
   let savedMode: string | undefined;
   let savedDir: string | undefined;
+  let savedCacheFile: string | undefined;
 
   beforeEach(() => {
     savedMode = process.env.SKIPPER_MODE;
     savedDir = process.env.SKIPPER_DISCOVERED_DIR;
+    savedCacheFile = process.env.SKIPPER_CACHE_FILE;
     delete process.env.SKIPPER_MODE;
     delete process.env.SKIPPER_DISCOVERED_DIR;
+    delete process.env.SKIPPER_CACHE_FILE;
   });
 
   afterEach(() => {
@@ -60,6 +81,8 @@ describe('createSkipperGlobalTeardown()', () => {
     else delete process.env.SKIPPER_MODE;
     if (savedDir !== undefined) process.env.SKIPPER_DISCOVERED_DIR = savedDir;
     else delete process.env.SKIPPER_DISCOVERED_DIR;
+    if (savedCacheFile !== undefined) process.env.SKIPPER_CACHE_FILE = savedCacheFile;
+    else delete process.env.SKIPPER_CACHE_FILE;
   });
 
   it('returns an async function', () => {
@@ -67,7 +90,25 @@ describe('createSkipperGlobalTeardown()', () => {
     expect(typeof teardown).toBe('function');
   });
 
-  it('does nothing when SKIPPER_MODE is not "sync"', async () => {
+  it('emits a quarantine report when SKIPPER_CACHE_FILE exists', async () => {
+    const tmpDir = makeTmpDir();
+    try {
+      const cacheFile = writeCacheFile(tmpDir, { 'tests/a.spec.ts > test': null });
+      process.env.SKIPPER_CACHE_FILE = cacheFile;
+      await createSkipperGlobalTeardown(config)();
+      expect(mockBuildReport).toHaveBeenCalled();
+      expect(mockEmitSummary).toHaveBeenCalled();
+    } finally {
+      fs.rmSync(tmpDir, { recursive: true, force: true });
+    }
+  });
+
+  it('skips the report gracefully when SKIPPER_CACHE_FILE is not set', async () => {
+    await createSkipperGlobalTeardown(config)();
+    expect(mockEmitSummary).not.toHaveBeenCalled();
+  });
+
+  it('does not call SheetsWriter.sync when SKIPPER_MODE is not "sync"', async () => {
     const tmpDir = makeTmpDir();
     writeIds(tmpDir, ['tests/a.spec.ts > test']);
     process.env.SKIPPER_DISCOVERED_DIR = tmpDir;

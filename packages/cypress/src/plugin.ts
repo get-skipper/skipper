@@ -1,7 +1,15 @@
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
-import { SkipperResolver, SheetsWriter, buildTestId, log } from '@get-skipper/core';
+import {
+  SkipperResolver,
+  SheetsWriter,
+  buildReport,
+  emitSummary,
+  buildTestId,
+  log,
+  warn,
+} from '@get-skipper/core';
 import type { SkipperConfig } from '@get-skipper/core';
 
 export const SKIPPER_CACHE_PATH = path.join(os.tmpdir(), '.skipper-cypress-cache.json');
@@ -22,7 +30,9 @@ export const SKIPPER_CACHE_PATH = path.join(os.tmpdir(), '.skipper-cypress-cache
  */
 export function createSkipperPlugin(config: SkipperConfig) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return function setupNodeEvents(on: (event: string, handler: (...args: any[]) => any) => void): void {
+  return function setupNodeEvents(
+    on: (event: string, handler: (...args: any[]) => any) => void,
+  ): void {
     on('before:run', async () => {
       const resolver = new SkipperResolver(config);
       await resolver.initialize();
@@ -32,6 +42,19 @@ export function createSkipperPlugin(config: SkipperConfig) {
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     on('after:run', async (results: any) => {
+      // Emit quarantine report on every run
+      try {
+        if (fs.existsSync(SKIPPER_CACHE_PATH)) {
+          const raw = fs.readFileSync(SKIPPER_CACHE_PATH, 'utf8');
+          const cache = JSON.parse(raw) as Record<string, string | null>;
+          emitSummary(buildReport(cache));
+        } else {
+          warn('[skipper] Cache file not found — skipping quarantine report.');
+        }
+      } catch {
+        warn('[skipper] Failed to emit quarantine report.');
+      }
+
       if (process.env.SKIPPER_MODE !== 'sync') return;
 
       const runs: unknown[] = results?.runs ?? [];

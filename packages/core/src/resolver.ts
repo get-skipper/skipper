@@ -83,7 +83,9 @@ export class SkipperResolver {
         warn('[skipper] API unreachable — using cached skip list (SKIPPER_CACHE_TTL).');
         entries = cached;
       } else if (failOpen) {
-        warn('[skipper] API unreachable and no valid cache — running all tests (SKIPPER_FAIL_OPEN=true).');
+        warn(
+          '[skipper] API unreachable and no valid cache — running all tests (SKIPPER_FAIL_OPEN=true).',
+        );
         this.allEnabled = true;
         this.initialized = true;
         return;

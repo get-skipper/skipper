@@ -1,3 +1,7 @@
+import * as fs from 'fs';
+import * as os from 'os';
+import * as path from 'path';
+
 // ── Module-level handles (populated in beforeEach) ────────────────────────────
 // jest.mock() at module level + imports is not reliably hoisted with ts-jest 29
 // + Jest 30. We use jest.resetModules() + require() in beforeEach instead.
@@ -7,6 +11,8 @@ type CreateTeardown = (config: unknown) => TeardownFn;
 
 let createSkipperGlobalTeardown: CreateTeardown;
 let mockSync: jest.Mock;
+let mockEmitSummary: jest.Mock;
+let mockBuildReport: jest.Mock;
 
 const config = {
   spreadsheetId: 'sheet-id',
@@ -17,9 +23,19 @@ beforeEach(() => {
   jest.resetModules();
 
   mockSync = jest.fn().mockResolvedValue(undefined);
+  mockEmitSummary = jest.fn();
+  mockBuildReport = jest.fn().mockReturnValue({
+    suppressedCount: 0,
+    expiringThisWeek: [],
+    reEnabledThisRun: [],
+    quarantineDebtDays: 0,
+    generatedAt: new Date().toISOString(),
+  });
 
   jest.mock('@get-skipper/core', () => ({
     SheetsWriter: jest.fn().mockImplementation(() => ({ sync: mockSync })),
+    buildReport: mockBuildReport,
+    emitSummary: mockEmitSummary,
     log: jest.fn(), warn: jest.fn(), error: jest.fn(),
   }));
 
@@ -33,6 +49,7 @@ beforeEach(() => {
 describe('createSkipperGlobalTeardown() — @get-skipper/vitest', () => {
   let savedMode: string | undefined;
   let savedDiscovered: string | undefined;
+  let tmpCacheFile: string | undefined;
 
   beforeEach(() => {
     savedMode = process.env.SKIPPER_MODE;
@@ -46,13 +63,36 @@ describe('createSkipperGlobalTeardown() — @get-skipper/vitest', () => {
     else delete process.env.SKIPPER_MODE;
     if (savedDiscovered !== undefined) process.env.SKIPPER_DISCOVERED_TESTS = savedDiscovered;
     else delete process.env.SKIPPER_DISCOVERED_TESTS;
+    if (tmpCacheFile && fs.existsSync(tmpCacheFile)) fs.unlinkSync(tmpCacheFile);
+    tmpCacheFile = undefined;
   });
+
+  function writeTmpCache(data: Record<string, string | null>): void {
+    // Write a real cache file to the vitest cache path so the teardown can find it
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { SKIPPER_CACHE_PATH } = require('../src/globalSetup');
+    tmpCacheFile = SKIPPER_CACHE_PATH;
+    fs.writeFileSync(SKIPPER_CACHE_PATH, JSON.stringify(data), 'utf8');
+  }
 
   it('returns an async function', () => {
     expect(typeof createSkipperGlobalTeardown(config)).toBe('function');
   });
 
-  it('does nothing when SKIPPER_MODE is not "sync"', async () => {
+  it('emits a quarantine report when the cache file exists', async () => {
+    writeTmpCache({ 'tests/a.spec.ts > test': null });
+    await createSkipperGlobalTeardown(config)();
+    expect(mockBuildReport).toHaveBeenCalled();
+    expect(mockEmitSummary).toHaveBeenCalled();
+  });
+
+  it('skips the report gracefully when the cache file does not exist', async () => {
+    // No cache file written — emitSummary should not be called
+    await createSkipperGlobalTeardown(config)();
+    expect(mockEmitSummary).not.toHaveBeenCalled();
+  });
+
+  it('does not call SheetsWriter.sync when SKIPPER_MODE is not "sync"', async () => {
     process.env.SKIPPER_DISCOVERED_TESTS = JSON.stringify(['tests/a.spec.ts > test']);
     const teardown = createSkipperGlobalTeardown(config);
     await teardown();

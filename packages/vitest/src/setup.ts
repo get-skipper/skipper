@@ -39,19 +39,16 @@ function appendDiscovered(testId: string): void {
 // Override describe to maintain the stack
 const originalDescribe = g.describe as ((name: string, fn: () => void) => void) | undefined;
 if (originalDescribe) {
-  g.describe = Object.assign(
-    (name: string, fn: () => void) => {
-      describeStack.push(name);
-      originalDescribe(name, () => {
-        try {
-          fn();
-        } finally {
-          describeStack.pop();
-        }
-      });
-    },
-    originalDescribe,
-  );
+  g.describe = Object.assign((name: string, fn: () => void) => {
+    describeStack.push(name);
+    originalDescribe(name, () => {
+      try {
+        fn();
+      } finally {
+        describeStack.pop();
+      }
+    });
+  }, originalDescribe);
 }
 
 // Override test / it

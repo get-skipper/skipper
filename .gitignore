@@ -8,8 +8,9 @@ dist/
 service-account*.json
 *-service-account.json
 
-# Skipper runtime cache
+# Skipper runtime artifacts
 .skipper-cache.json
+skipper-report.json
 
 # OS
 .DS_Store

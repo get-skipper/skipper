@@ -1,4 +1,12 @@
-import { SkipperResolver, SheetsWriter, buildTestId, log } from '@get-skipper/core';
+import {
+  SkipperResolver,
+  SheetsWriter,
+  buildReport,
+  emitSummary,
+  buildTestId,
+  log,
+  warn,
+} from '@get-skipper/core';
 import type { SkipperConfig } from '@get-skipper/core';
 
 /**
@@ -33,7 +41,8 @@ export function createSkipperPlugin(config: SkipperConfig) {
         return;
       }
 
-      const currentTest = (browser as unknown as { currentTest: NightwatchCurrentTest }).currentTest;
+      const currentTest = (browser as unknown as { currentTest: NightwatchCurrentTest })
+        .currentTest;
       if (!currentTest) {
         done();
         return;
@@ -56,6 +65,13 @@ export function createSkipperPlugin(config: SkipperConfig) {
     },
 
     async after(): Promise<void> {
+      // Emit quarantine report on every run
+      try {
+        emitSummary(buildReport(resolver ? resolver.toJSON() : {}));
+      } catch {
+        warn('[skipper] Failed to emit quarantine report.');
+      }
+
       if (process.env.SKIPPER_MODE !== 'sync') return;
       if (discoveredIds.length === 0) {
         log('[skipper] No tests discovered — skipping spreadsheet sync.');

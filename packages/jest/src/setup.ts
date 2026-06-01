@@ -51,10 +51,7 @@ if (discoveredDir) {
       if (discoveredIds.length === 0) return;
       // Use worker ID + timestamp + random to guarantee a unique file name per test file.
       const suffix = `${workerId}-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-      fs.writeFileSync(
-        path.join(discoveredDir, `${suffix}.json`),
-        JSON.stringify(discoveredIds),
-      );
+      fs.writeFileSync(path.join(discoveredDir, `${suffix}.json`), JSON.stringify(discoveredIds));
     });
   }
 }
@@ -68,19 +65,16 @@ function buildCurrentTestId(name: string): string {
 // Override describe to maintain the stack
 const originalDescribe = g.describe as ((name: string, fn: () => void) => void) | undefined;
 if (originalDescribe) {
-  g.describe = Object.assign(
-    (name: string, fn: () => void) => {
-      describeStack.push(name);
-      originalDescribe(name, () => {
-        try {
-          fn();
-        } finally {
-          describeStack.pop();
-        }
-      });
-    },
-    originalDescribe,
-  );
+  g.describe = Object.assign((name: string, fn: () => void) => {
+    describeStack.push(name);
+    originalDescribe(name, () => {
+      try {
+        fn();
+      } finally {
+        describeStack.pop();
+      }
+    });
+  }, originalDescribe);
 }
 
 // Override test / it
