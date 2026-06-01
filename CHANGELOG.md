@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-06-01
+
+### Added
+
+- **core**: quarantine debt report emitted after every run — surfaces suppressed test data via `GITHUB_STEP_SUMMARY` (fallback to stdout) and writes `skipper-report.json` as a run artifact. Report includes: suppressed count, tests expiring this week, re-enabled tests (expired quarantine), and total quarantine-days debt.
+- All framework integrations (vitest, jest, playwright, cypress, nightwatch) now call `emitSummary()` at teardown time so the report is emitted on every run regardless of `SKIPPER_MODE`.
+
 ## [1.2.0] - 2026-04-09
 
 ### Fixed
@@ -46,7 +53,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `SKIPPER_DEBUG` env var for verbose logging.
 - CI workflow for automated publishing to npm.
 
-[Unreleased]: https://github.com/get-skipper/skipper/compare/v1.2.0...HEAD
+[Unreleased]: https://github.com/get-skipper/skipper/compare/v1.3.0...HEAD
+[1.3.0]: https://github.com/get-skipper/skipper/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/get-skipper/skipper/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/get-skipper/skipper/compare/v1.0.1...v1.1.0
 [1.0.1]: https://github.com/get-skipper/skipper/compare/v1.0.0...v1.0.1
