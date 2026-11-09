@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.4.0] - 2026-11-09
+
+### Added
+
+- **core**: `SkipperResolver.initialize()` now returns where the skip list came from (`'api'`, `'cache'` or `'fail-open'`); the same value is available via `getSource()`. New exported type `SkipperLoadSource`.
+
+### Fixed
+
+- **playwright**: the `_skipperResolver` worker fixture now uses an object destructuring pattern as its first argument, which Playwright requires (#6).
+- **playwright**: fixture and reporter now build the same testId, in the documented format `{relative file path} > {describe block(s)} > {test name}`, without the project name (#7). Rows previously written by `SKIPPER_MODE=sync` used a broken format that never matched; the next sync run treats them as orphans.
+- **core**: cache and fail-open fallbacks now always print a warning (even without `SKIPPER_DEBUG`) including the underlying error (#8).
+- All framework integrations log "Spreadsheet loaded" only when the spreadsheet was actually fetched from the API (#8).
+
 ## [1.3.0] - 2026-06-01
 
 ### Added
