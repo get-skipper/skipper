@@ -53,3 +53,11 @@ export interface TestEntry {
   disabledUntil: Date | null;
   notes?: string;
 }
+
+/**
+ * Where a SkipperResolver loaded its skip list from:
+ * - `api`: fetched from the spreadsheet
+ * - `cache`: the API failed; the local `.skipper-cache.json` was used
+ * - `fail-open`: the API failed and no valid cache exists; all tests are enabled
+ */
+export type SkipperLoadSource = 'api' | 'cache' | 'fail-open';

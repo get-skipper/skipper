@@ -27,7 +27,7 @@ describe('createSkipperGlobalSetup()', () => {
     originalDiscoveredDir = process.env.SKIPPER_DISCOVERED_DIR;
     delete process.env.SKIPPER_CACHE_FILE;
     delete process.env.SKIPPER_DISCOVERED_DIR;
-    (MockedSkipperResolver.prototype.initialize as jest.Mock).mockResolvedValue(undefined);
+    (MockedSkipperResolver.prototype.initialize as jest.Mock).mockResolvedValue('api');
     (MockedSkipperResolver.prototype.toJSON as jest.Mock).mockReturnValue(MOCK_CACHE);
   });
 

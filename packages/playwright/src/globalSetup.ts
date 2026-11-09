@@ -9,8 +9,9 @@ export const SKIPPER_CACHE_PATH = path.join(os.tmpdir(), '.skipper-playwright-ca
 export function createSkipperGlobalSetup(config: SkipperConfig) {
   return async function skipperGlobalSetup(): Promise<void> {
     const resolver = new SkipperResolver(config);
-    await resolver.initialize();
+    const source = await resolver.initialize();
     fs.writeFileSync(SKIPPER_CACHE_PATH, JSON.stringify(resolver.toJSON()), 'utf8');
-    log('[skipper] Spreadsheet loaded and cache written.');
+    // On 'cache' / 'fail-open' the resolver has already printed a warning.
+    if (source === 'api') log('[skipper] Spreadsheet loaded and cache written.');
   };
 }

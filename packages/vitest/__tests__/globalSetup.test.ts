@@ -24,7 +24,7 @@ const config = {
 describe('createSkipperGlobalSetup() — @get-skipper/vitest', () => {
   beforeEach(() => {
     if (fs.existsSync(SKIPPER_CACHE_PATH)) fs.unlinkSync(SKIPPER_CACHE_PATH);
-    (MockedSkipperResolver.prototype.initialize as jest.Mock).mockResolvedValue(undefined);
+    (MockedSkipperResolver.prototype.initialize as jest.Mock).mockResolvedValue('api');
     (MockedSkipperResolver.prototype.toJSON as jest.Mock).mockReturnValue(MOCK_CACHE);
   });
 

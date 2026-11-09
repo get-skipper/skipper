@@ -35,9 +35,9 @@ export function createSkipperPlugin(config: SkipperConfig) {
   ): void {
     on('before:run', async () => {
       const resolver = new SkipperResolver(config);
-      await resolver.initialize();
+      const source = await resolver.initialize();
       fs.writeFileSync(SKIPPER_CACHE_PATH, JSON.stringify(resolver.toJSON()), 'utf8');
-      log('[skipper] Spreadsheet loaded and cache written.');
+      if (source === 'api') log('[skipper] Spreadsheet loaded and cache written.');
     });
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

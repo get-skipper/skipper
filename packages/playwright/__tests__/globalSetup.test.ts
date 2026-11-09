@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 import { createSkipperGlobalSetup, SKIPPER_CACHE_PATH } from '../src/globalSetup';
-import { SkipperResolver } from '@get-skipper/core';
+import { SkipperResolver, log } from '@get-skipper/core';
 
 jest.mock('fs');
 jest.mock('@get-skipper/core', () => {
@@ -27,7 +27,7 @@ const config = {
 
 describe('createSkipperGlobalSetup() — @get-skipper/playwright', () => {
   beforeEach(() => {
-    (MockedSkipperResolver.prototype.initialize as jest.Mock).mockResolvedValue(undefined);
+    (MockedSkipperResolver.prototype.initialize as jest.Mock).mockResolvedValue('api');
     (MockedSkipperResolver.prototype.toJSON as jest.Mock).mockReturnValue(MOCK_CACHE);
   });
 
@@ -63,6 +63,24 @@ describe('createSkipperGlobalSetup() — @get-skipper/playwright', () => {
     // Use bracket notation — toHaveProperty treats dots/slashes as path separators
     expect(parsed['tests/auth.spec.ts > login']).toBeNull();
     expect(parsed['tests/checkout.spec.ts > payment']).toBeDefined();
+  });
+
+  describe('success message (issue #8)', () => {
+    it('logs "Spreadsheet loaded" when the spreadsheet was fetched', async () => {
+      await createSkipperGlobalSetup(config)();
+      expect(log).toHaveBeenCalledWith('[skipper] Spreadsheet loaded and cache written.');
+    });
+
+    it.each(['cache', 'fail-open'])(
+      'does not log "Spreadsheet loaded" when the resolver fell back to %s',
+      async (source) => {
+        (MockedSkipperResolver.prototype.initialize as jest.Mock).mockResolvedValue(source);
+        await createSkipperGlobalSetup(config)();
+        expect(log).not.toHaveBeenCalledWith(expect.stringContaining('Spreadsheet loaded'));
+        // The cache file is still written so workers can start.
+        expect(mockedFs.writeFileSync).toHaveBeenCalled();
+      },
+    );
   });
 
   describe('usage example — Playwright globalSetup configuration', () => {

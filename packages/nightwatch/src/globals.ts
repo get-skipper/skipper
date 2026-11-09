@@ -31,8 +31,8 @@ export function createSkipperPlugin(config: SkipperConfig) {
   return {
     async before(): Promise<void> {
       resolver = new SkipperResolver(config);
-      await resolver.initialize();
-      log('[skipper] Spreadsheet loaded.');
+      const source = await resolver.initialize();
+      if (source === 'api') log('[skipper] Spreadsheet loaded.');
     },
 
     beforeEach(browser: NightwatchBrowser, done: () => void): void {

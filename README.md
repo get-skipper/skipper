@@ -139,10 +139,10 @@ All tests will be added to the spreadsheet with an empty `disabledUntil` (enable
 | Variable | Default | Description |
 |---|---|---|
 | `SKIPPER_MODE` | `read-only` | Set to `sync` to enable spreadsheet reconciliation after the test run |
-| `SKIPPER_FAIL_OPEN` | `true` | When `true`, runs all tests if the API is unreachable and no valid cache exists. Set to `false` to crash instead |
+| `SKIPPER_FAIL_OPEN` | `true` | When `true`, runs all tests if the API is unreachable and no valid cache exists. Set to `false` to crash instead. The fallback always prints a warning, even without `SKIPPER_DEBUG` |
 | `SKIPPER_CACHE_TTL` | `300` | Seconds a local `.skipper-cache.json` is considered valid. Skipper writes this file after each successful fetch and reads it as a fallback on API failure |
 | `SKIPPER_SYNC_ALLOW_DELETE` | `false` | When `false`, orphaned rows (tests removed from the suite) are only warned about. Set to `true` to delete them |
-| `SKIPPER_DEBUG` | — | Set to any truthy value to enable verbose logging |
+| `SKIPPER_DEBUG` | — | Set to any truthy value to enable verbose logging (cache / fail-open fallback warnings are printed regardless) |
 
 ## Modes
 

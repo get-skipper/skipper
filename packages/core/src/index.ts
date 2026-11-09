@@ -9,6 +9,7 @@ export type {
   SkipperConfig,
   SkipperCredentials,
   SkipperMode,
+  SkipperLoadSource,
   ServiceAccountCredentials,
   TestEntry,
 } from './types';

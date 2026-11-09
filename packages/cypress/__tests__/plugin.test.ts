@@ -43,7 +43,7 @@ describe('createSkipperPlugin() — @get-skipper/cypress', () => {
   beforeEach(() => {
     originalMode = process.env.SKIPPER_MODE;
     delete process.env.SKIPPER_MODE;
-    (MockedSkipperResolver.prototype.initialize as jest.Mock).mockResolvedValue(undefined);
+    (MockedSkipperResolver.prototype.initialize as jest.Mock).mockResolvedValue('api');
     (MockedSkipperResolver.prototype.toJSON as jest.Mock).mockReturnValue({
       'tests/auth.spec.ts > login': null,
     });

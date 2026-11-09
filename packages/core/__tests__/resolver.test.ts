@@ -217,6 +217,51 @@ describe('SkipperResolver', () => {
     });
   });
 
+  describe('load source and fallback warnings (issue #8)', () => {
+    let warnSpy: jest.SpyInstance;
+    let originalDebug: string | undefined;
+
+    beforeEach(() => {
+      originalDebug = process.env.SKIPPER_DEBUG;
+      delete process.env.SKIPPER_DEBUG;
+      warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+    });
+
+    afterEach(() => {
+      if (originalDebug !== undefined) process.env.SKIPPER_DEBUG = originalDebug;
+    });
+
+    it("returns 'api' and does not warn when the spreadsheet is fetched", async () => {
+      const resolver = new SkipperResolver(baseConfig);
+      expect(resolver.getSource()).toBeNull();
+      await expect(resolver.initialize()).resolves.toBe('api');
+      expect(resolver.getSource()).toBe('api');
+      expect(warnSpy).not.toHaveBeenCalled();
+    });
+
+    it("returns 'cache' and always warns when falling back to the disk cache", async () => {
+      mockFetchAll.mockRejectedValue(new Error('invalid_grant'));
+      mockReadFileSync.mockReturnValue(JSON.stringify({ timestamp: Date.now(), entries: {} }));
+
+      const resolver = new SkipperResolver(baseConfig);
+      await expect(resolver.initialize()).resolves.toBe('cache');
+      expect(warnSpy).toHaveBeenCalledTimes(1);
+      expect(warnSpy.mock.calls[0][0]).toContain('invalid_grant');
+      expect(warnSpy.mock.calls[0][0]).toContain('cached skip list');
+    });
+
+    it("returns 'fail-open' and always warns when running all tests", async () => {
+      mockFetchAll.mockRejectedValue(new Error('Requested entity was not found.'));
+
+      const resolver = new SkipperResolver(baseConfig);
+      await expect(resolver.initialize()).resolves.toBe('fail-open');
+      expect(resolver.getSource()).toBe('fail-open');
+      expect(warnSpy).toHaveBeenCalledTimes(1);
+      expect(warnSpy.mock.calls[0][0]).toContain('Requested entity was not found.');
+      expect(warnSpy.mock.calls[0][0]).toContain('running all tests');
+    });
+  });
+
   describe('SKIPPER_FAIL_OPEN', () => {
     it('enables all tests when API fails and no cache is available (default: fail-open)', async () => {
       mockFetchAll.mockRejectedValue(new Error('network error'));
