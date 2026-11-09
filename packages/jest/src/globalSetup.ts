@@ -7,7 +7,7 @@ import type { SkipperConfig } from '@get-skipper/core';
 export function createSkipperGlobalSetup(config: SkipperConfig) {
   return async function skipperGlobalSetup(): Promise<void> {
     const resolver = new SkipperResolver(config);
-    await resolver.initialize();
+    const source = await resolver.initialize();
 
     // Create a temp directory for:
     // 1. The resolver cache (shared with all worker processes via SKIPPER_CACHE_FILE)
@@ -24,6 +24,6 @@ export function createSkipperGlobalSetup(config: SkipperConfig) {
     process.env.SKIPPER_CACHE_FILE = cacheFile;
     process.env.SKIPPER_DISCOVERED_DIR = discoveredDir;
 
-    log('[skipper] Spreadsheet loaded.');
+    if (source === 'api') log('[skipper] Spreadsheet loaded.');
   };
 }

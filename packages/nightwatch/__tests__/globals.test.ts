@@ -33,7 +33,7 @@ describe('createSkipperPlugin() — @get-skipper/nightwatch', () => {
   beforeEach(() => {
     originalMode = process.env.SKIPPER_MODE;
     delete process.env.SKIPPER_MODE;
-    (MockedSkipperResolver.prototype.initialize as jest.Mock).mockResolvedValue(undefined);
+    (MockedSkipperResolver.prototype.initialize as jest.Mock).mockResolvedValue('api');
     (MockedSkipperResolver.prototype.isTestEnabled as jest.Mock).mockReturnValue(true);
     (MockedSheetsWriter.prototype.sync as jest.Mock).mockResolvedValue(undefined);
   });

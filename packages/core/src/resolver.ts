@@ -2,8 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { SheetsClient } from './client';
 import { normalizeTestId } from './cache';
-import { warn } from './logger';
-import type { SkipperConfig, SkipperMode } from './types';
+import type { SkipperConfig, SkipperLoadSource, SkipperMode } from './types';
 
 const DISK_CACHE_FILE = path.join(process.cwd(), '.skipper-cache.json');
 
@@ -48,6 +47,8 @@ export class SkipperResolver {
   private initialized = false;
   /** When true, all tests are enabled (fail-open fallback with no valid cache). */
   private allEnabled = false;
+  /** Where the skip list came from on the last `initialize()` (null until it completes). */
+  private source: SkipperLoadSource | null = null;
 
   constructor(config: SkipperConfig) {
     this.config = config;
@@ -62,8 +63,13 @@ export class SkipperResolver {
    * - If a valid `.skipper-cache.json` exists within SKIPPER_CACHE_TTL seconds, it is used.
    * - Otherwise, if SKIPPER_FAIL_OPEN is not "false", all tests are enabled (fail-open).
    * - Otherwise (SKIPPER_FAIL_OPEN=false), the original error is re-thrown.
+   *
+   * The two fallback paths always print a warning (not only with SKIPPER_DEBUG),
+   * because they change which tests run.
+   *
+   * @returns where the skip list was loaded from: `'api'`, `'cache'` or `'fail-open'`.
    */
-  async initialize(): Promise<void> {
+  async initialize(): Promise<SkipperLoadSource> {
     const ttl = parseInt(process.env.SKIPPER_CACHE_TTL ?? '300', 10);
     const failOpen = process.env.SKIPPER_FAIL_OPEN !== 'false';
 
@@ -77,18 +83,25 @@ export class SkipperResolver {
         ]),
       );
       writeDiskCache(entries);
+      this.source = 'api';
     } catch (err) {
+      const reason = err instanceof Error ? err.message : String(err);
       const cached = readDiskCache(ttl);
       if (cached !== null) {
-        warn('[skipper] API unreachable — using cached skip list (SKIPPER_CACHE_TTL).');
+        console.warn(
+          `[skipper] Could not load the spreadsheet (${reason}) — using cached skip list (SKIPPER_CACHE_TTL).`,
+        );
         entries = cached;
+        this.source = 'cache';
       } else if (failOpen) {
-        warn(
-          '[skipper] API unreachable and no valid cache — running all tests (SKIPPER_FAIL_OPEN=true).',
+        console.warn(
+          `[skipper] Could not load the spreadsheet (${reason}) and no valid cache — ` +
+            'running all tests, including disabled ones (SKIPPER_FAIL_OPEN=true).',
         );
         this.allEnabled = true;
         this.initialized = true;
-        return;
+        this.source = 'fail-open';
+        return this.source;
       } else {
         throw err;
       }
@@ -96,6 +109,16 @@ export class SkipperResolver {
 
     this.cache = new Map(Object.entries(entries));
     this.initialized = true;
+    return this.source;
+  }
+
+  /**
+   * Where the skip list came from: `'api'` (fresh spreadsheet), `'cache'`
+   * (`.skipper-cache.json` fallback) or `'fail-open'` (all tests enabled).
+   * Returns null before `initialize()` has completed.
+   */
+  getSource(): SkipperLoadSource | null {
+    return this.source;
   }
 
   /**
