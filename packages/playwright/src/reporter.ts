@@ -1,8 +1,9 @@
 import * as fs from 'fs';
 import type { Reporter, TestCase, TestResult, FullResult } from '@playwright/test/reporter';
-import { SheetsWriter, buildReport, emitSummary, buildTestId, log, warn } from '@get-skipper/core';
+import { SheetsWriter, buildReport, emitSummary, log, warn } from '@get-skipper/core';
 import type { SkipperConfig } from '@get-skipper/core';
 import { SKIPPER_CACHE_PATH } from './globalSetup';
+import { buildPlaywrightTestId } from './testId';
 
 /**
  * SkipperReporter collects all test IDs discovered during the run.
@@ -24,8 +25,9 @@ export class SkipperReporter implements Reporter {
   }
 
   onTestEnd(test: TestCase, _result: TestResult): void {
-    const titlePath = test.titlePath().filter(Boolean);
-    const testId = buildTestId(test.location.file, titlePath);
+    // TestCase.titlePath() is ['', projectName, file, ...describes, title]:
+    // drop the root suite and the project to match TestInfo.titlePath.
+    const testId = buildPlaywrightTestId(test.location.file, test.titlePath().slice(2));
     this.discoveredIds.push(testId);
   }
 

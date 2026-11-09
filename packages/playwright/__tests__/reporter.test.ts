@@ -18,10 +18,15 @@ const config = {
   credentials: { credentialsBase64: 'dGVzdA==' },
 };
 
-function makeTestCase(file: string, titlePath: string[]): any {
+/**
+ * Builds a fake TestCase. `titles` are the describe blocks + test name;
+ * `titlePath()` mirrors Playwright: ['', projectName, relativeFile, ...titles].
+ */
+function makeTestCase(file: string, titles: string[], project = 'chromium'): any {
+  const relativeFile = file.replace(/^\/project\//, '');
   return {
     location: { file },
-    titlePath: () => titlePath,
+    titlePath: () => ['', project, relativeFile, ...titles],
   };
 }
 
@@ -47,11 +52,11 @@ describe('SkipperReporter', () => {
       process.env.SKIPPER_MODE = 'sync';
       const reporter = new SkipperReporter(config);
       reporter.onTestEnd(
-        makeTestCase('/project/tests/auth.spec.ts', ['', 'login', 'should log in']),
+        makeTestCase('/project/tests/auth.spec.ts', ['login', 'should log in']),
         mockResult,
       );
       reporter.onTestEnd(
-        makeTestCase('/project/tests/checkout.spec.ts', ['', 'checkout', 'stripe']),
+        makeTestCase('/project/tests/checkout.spec.ts', ['checkout', 'stripe']),
         mockResult,
       );
       await reporter.onEnd(mockFullResult);
@@ -61,10 +66,42 @@ describe('SkipperReporter', () => {
     });
   });
 
+  describe('testId format (issue #7)', () => {
+    it('does not include the project name or the file path twice', async () => {
+      process.env.SKIPPER_MODE = 'sync';
+      const cwd = process.cwd();
+      const reporter = new SkipperReporter(config);
+      reporter.onTestEnd(
+        {
+          location: { file: `${cwd}/src/tests/api/skipperPoc.spec.ts` },
+          titlePath: () => ['', 'api', 'src/tests/api/skipperPoc.spec.ts', 'Skipper POC', 'skipperTarget'],
+        } as any,
+        mockResult,
+      );
+      await reporter.onEnd(mockFullResult);
+
+      const syncCall = MockedSheetsWriter.prototype.sync as jest.Mock;
+      expect(syncCall.mock.calls[0][0]).toEqual([
+        'src/tests/api/skipperPoc.spec.ts > Skipper POC > skipperTarget',
+      ]);
+    });
+
+    it('produces the same id regardless of the project name', async () => {
+      process.env.SKIPPER_MODE = 'sync';
+      const reporter = new SkipperReporter(config);
+      reporter.onTestEnd(makeTestCase('/project/tests/a.spec.ts', ['x'], 'chromium'), mockResult);
+      reporter.onTestEnd(makeTestCase('/project/tests/a.spec.ts', ['x'], ''), mockResult);
+      await reporter.onEnd(mockFullResult);
+
+      const ids = (MockedSheetsWriter.prototype.sync as jest.Mock).mock.calls[0][0] as string[];
+      expect(ids[0]).toBe(ids[1]);
+    });
+  });
+
   describe('onEnd()', () => {
     it('does nothing when SKIPPER_MODE is not "sync"', async () => {
       const reporter = new SkipperReporter(config);
-      reporter.onTestEnd(makeTestCase('/project/tests/a.spec.ts', ['', 'test']), mockResult);
+      reporter.onTestEnd(makeTestCase('/project/tests/a.spec.ts', ['test']), mockResult);
       await reporter.onEnd(mockFullResult);
       expect(MockedSheetsWriter).not.toHaveBeenCalled();
     });
@@ -80,11 +117,11 @@ describe('SkipperReporter', () => {
       process.env.SKIPPER_MODE = 'sync';
       const reporter = new SkipperReporter(config);
       reporter.onTestEnd(
-        makeTestCase('/project/tests/auth.spec.ts', ['', 'login', 'should log in']),
+        makeTestCase('/project/tests/auth.spec.ts', ['login', 'should log in']),
         mockResult,
       );
       reporter.onTestEnd(
-        makeTestCase('/project/tests/auth.spec.ts', ['', 'login', 'should fail']),
+        makeTestCase('/project/tests/auth.spec.ts', ['login', 'should fail']),
         mockResult,
       );
       await reporter.onEnd(mockFullResult);
@@ -118,9 +155,9 @@ describe('SkipperReporter', () => {
       const reporter = new SkipperReporter(config);
 
       const testCases = [
-        makeTestCase('/project/tests/auth/login.spec.ts', ['', 'login', 'should log in']),
-        makeTestCase('/project/tests/auth/login.spec.ts', ['', 'login', 'should fail with wrong password']),
-        makeTestCase('/project/tests/checkout/cart.spec.ts', ['', 'cart', 'should add item']),
+        makeTestCase('/project/tests/auth/login.spec.ts', ['login', 'should log in']),
+        makeTestCase('/project/tests/auth/login.spec.ts', ['login', 'should fail with wrong password']),
+        makeTestCase('/project/tests/checkout/cart.spec.ts', ['cart', 'should add item']),
       ];
 
       for (const tc of testCases) reporter.onTestEnd(tc, mockResult);
